@@ -1,0 +1,38 @@
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql:rw
+      - ./mysql:/docker-entrypoint-initdb.d/:ro
+    environment:
+        - MYSQL_DATABASE=camagru
+        - MYSQL_USER=root
+        - MYSQL_ROOT_PASSWORD=root
+
+  php71:
+    build: ./php71
+    ports:
+        - "80:80"
+    volumes:
+      - ./src:/docker-pamp/src
+    working_dir: /docker-pamp/src
+    links:
+      - db:db
+    environment:
+        - MYSQL_DATABASE=camagru
+        - MYSQL_USER=root
+        - MYSQL_ROOT_PASSWORD=root
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db:db
+    ports:
+      - "8081:80"
+
+volumes:
+  db_data:
