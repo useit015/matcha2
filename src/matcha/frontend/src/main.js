@@ -11,7 +11,12 @@ Vue.use(Vuetify, {
 		primary: "#03a9f4"
 	}
 })
+
 Vue.use(vueResource)
+
+String.prototype.has = function(needle) {
+	return this.toLowerCase().includes(needle.toLowerCase())
+}
 
 new Vue({
 	store,
