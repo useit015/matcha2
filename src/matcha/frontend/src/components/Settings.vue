@@ -1,5 +1,5 @@
 <template>
-<v-layout column class="settings pb-5 mb-5">
+<v-layout column class="settings">
 	<div class="parallax"></div>
 	<v-layout class="py-0 strap grey lighten-3">
 		<v-container py-0>
@@ -169,7 +169,8 @@ export default {
 	transform: translate(-50%, -50%) scale(.95);
 }
 
-.avatar__btn > .v-btn--floating:not(.v-btn--depressed):not(.v-btn--flat) {
+.v-btn--floating:not(.v-btn--depressed):not(.v-btn--flat),
+.v-btn--floating:not(.v-btn--depressed):not(.v-btn--flat):focus {
 	box-shadow: 0 0 3px rgba(0, 0, 0, .2) inset;
 }
 
