@@ -47,13 +47,13 @@
 </template>
 
 <script>
-import Alert from './Alert.vue'
-import ProfileForm from './ProfileForm.vue'
-import ProfileTabs from './ProfileTabs.vue'
-import ProfileBadge from './ProfileBadge.vue'
-import ProfileEditor from './ProfileEditor.vue'
-import ProfileGallery from './ProfileGallery.vue'
-import ProfileSettings from './ProfileSettings.vue'
+import Alert from './Alert'
+import ProfileForm from './ProfileForm'
+import ProfileTabs from './ProfileTabs'
+import ProfileBadge from './ProfileBadge'
+import ProfileEditor from './ProfileEditor'
+import ProfileGallery from './ProfileGallery'
+import ProfileSettings from './ProfileSettings'
 import utility from '../utility.js'
 const path = require('path')
 

@@ -11,12 +11,12 @@
 	<div class="register mt-5">
 		<h1 class="page-header display-3 mb-4 font-weight-light grey--text">Register</h1>
 		<v-form v-model="valid" class="my-4">
-			<v-text-field color="primary" class="my-3" v-model="firstname" :rules="rules.name" label="First name" required ></v-text-field>
-			<v-text-field color="primary" class="my-3" v-model="lastname" :rules="rules.name" label="Last name" required ></v-text-field>
-			<v-text-field color="primary" class="my-3" v-model="username" :rules="rules.username" :counter="10" label="Username" required ></v-text-field>
-			<v-text-field color="primary" class="my-3" v-model="email" :rules="rules.email" label="E-mail" required ></v-text-field>
-			<v-text-field color="primary" class="my-3" v-model="password" :counter="12" :rules="rules.password" label="Password" required :append-icon="showPass ? 'visibility' : 'visibility_off'" :type="showPass ? 'text' : 'password'" @click:append="showPass = !showPass"></v-text-field>
-			<v-text-field color="primary" class="my-3" v-model="passwordConfirm" :counter="12" label="Confirm Password" required :append-icon="showConfPass ? 'visibility' : 'visibility_off'" :type="showConfPass ? 'text' : 'password'" @click:append="showConfPass = !showConfPass" :error-messages="passwordMatch()"></v-text-field>
+			<v-text-field color="primary" class="my-3" validate-on-blur v-model="firstname" :rules="rules.name" label="First name" required ></v-text-field>
+			<v-text-field color="primary" class="my-3" validate-on-blur v-model="lastname" :rules="rules.name" label="Last name" required ></v-text-field>
+			<v-text-field color="primary" class="my-3" validate-on-blur v-model="username" :rules="rules.username" :counter="10" label="Username" required ></v-text-field>
+			<v-text-field color="primary" class="my-3" validate-on-blur v-model="email" :rules="rules.email" label="E-mail" required ></v-text-field>
+			<v-text-field color="primary" class="my-3" validate-on-blur v-model="password" :counter="12" :rules="rules.password" label="Password" required :append-icon="showPass ? 'visibility' : 'visibility_off'" :type="showPass ? 'text' : 'password'" @click:append="showPass = !showPass"></v-text-field>
+			<v-text-field color="primary" class="my-3" validate-on-blur v-model="passwordConfirm" :counter="12" label="Confirm Password" required :append-icon="showConfPass ? 'visibility' : 'visibility_off'" :type="showConfPass ? 'text' : 'password'" @click:append="showConfPass = !showConfPass" :error-messages="passwordMatch()"></v-text-field>
 			<v-btn block large depressed color="primary" @click="registerUser" :disabled="!valid" class="mt-5 white--text">Submit</v-btn>
 			<v-layout row justify-end>
 				<v-btn flat color="primary" dark to="/login">Have an account? Login</v-btn>
@@ -81,7 +81,7 @@ export default {
 			}).catch(err => console.error(err))
 		},
 		passwordMatch () { 
-			return this.password === this.passwordConfirm ? '' : 'Passwords must match';
+			return !this.passwordConfirm.length || this.password === this.passwordConfirm ? '' : 'Passwords must match';
 		}
 	}
 }
