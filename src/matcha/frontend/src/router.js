@@ -6,6 +6,8 @@ import Login from '@/components/Login'
 import Register from '@/components/Register'
 import Settings from '@/components/Settings'
 import Discover from '@/components/Discover'
+import UserProfile from '@/components/UserProfile'
+import install from '@/components/install'
 
 Vue.use(vueRouter)
 
@@ -16,6 +18,10 @@ export const router = new vueRouter({
 		{
 			path: '/',
 			component: Users
+		},
+		{
+			path: '/install',
+			component: install
 		},
 		{
 			path: '/about',
@@ -36,6 +42,10 @@ export const router = new vueRouter({
 		{
 			path: '/discover',
 			component: Discover
+		},
+		{
+			path: '/user/:id',
+			component: UserProfile
 		}
 	]
 })

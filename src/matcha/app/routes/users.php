@@ -60,6 +60,45 @@ $app->get('/api/user/{id}', function(Request $req, Response $res) {
 	return $res->withJson($userModel->getUser($req->getAttribute('id')));
 });
 
+$app->post('/api/user/install', function(Request $req, Response $res) {
+	$userModel = new User();
+	$data = [
+		'first_name' => $req->getParam('first_name'),
+		'last_name' => $req->getParam('last_name'),
+		'username' => $req->getParam('username'),
+		'email' => $req->getParam('email'),
+		'password' => $req->getParam('password'),
+		'vkey' => bin2hex(random_bytes(10))
+	];
+	$pass = $data['password'];
+	$data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+	if ($userModel->addUser($data) && $userModel->verifyUser($data['vkey']))
+	{
+		$user = $userModel->login($data['username'], $pass);
+		$data = [
+			'id' => $user->id,
+			'first_name' => $req->getParam('first_name'),
+			'last_name' => $req->getParam('last_name'),
+			'username' => $req->getParam('username'),
+			'email' => $req->getParam('email'),
+			'gender' => $req->getParam('gender'),
+			'looking' => $req->getParam('looking'),
+			'birthdate' => $req->getParam('birthdate'),
+			'biography' => $req->getParam('biography'),
+			'tags' => $req->getParam('tags'),
+			'address' => $req->getParam('address'),
+			'city' => $req->getParam('city'),
+			'country' => $req->getParam('country'),
+			'postal_code' => $req->getParam('postal_code'),
+			'phone' => $req->getParam('phone')
+		];
+		if ($userModel->updateUser($data)) {
+			return $res->withJson(1);
+		}
+	}
+	return $res->withJson(0);
+});
+
 $app->post('/api/user/add', function(Request $req, Response $res) {
 	$userModel = new User();
 	$validator = new Validator();

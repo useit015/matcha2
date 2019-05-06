@@ -1,0 +1,53 @@
+<template>
+	<v-container>
+		<v-layout>
+			<v-text-field v-model="users"></v-text-field>
+			<v-btn color="primary" outline large @click="install">Install</v-btn>
+		</v-layout>
+	</v-container>
+</template>
+
+<script>
+import countries from '../nats.json'
+
+export default {
+	data () {
+		return {
+			users: 1,
+			nats: countries
+		}
+	},
+	methods: {
+		install () {
+			this.$http.get(`https://randomuser.me/api/?results=${this.users}`)
+			.then(res => {
+				console.log(res.body.results)
+				res.body.results.forEach(cur => {
+					this.$http.post('http://localhost:80/matcha/public/api/user/install', {
+						first_name: cur.name.first,
+						last_name: cur.name.last,
+						username: cur.login.username,
+						email: cur.email,
+						password: '123456abc',
+						gender: cur.gender,
+						looking: cur.gender == 'female' ? 'male' : 'female',
+						birthdate: cur.dob.date.slice(0, 10),
+						biography: '',
+						tags: '',
+						address: cur.location.street,
+						city: cur.location.city,
+						country: this.nats[cur.nat],
+						postal_code: cur.location.postcode,
+						phone: cur.cell,
+					}).then(res => console.log(res))
+					.catch(err => console.error(err))
+				})
+			}).catch(err => console.error(err))
+		}
+	}
+}
+</script>
+
+<style>
+
+</style>

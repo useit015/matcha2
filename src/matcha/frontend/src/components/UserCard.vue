@@ -2,7 +2,7 @@
 	<v-card>
 		<v-layout column justify-center align-center class="pt-1">
 			<v-layout justify-space-between class="top pa-2">
-				<v-chip disabled outline small color="grey lighten-1" class="ml-2">2 kms away</v-chip>
+				<v-chip disabled outline small color="grey lighten-1" class="ml-2">{{ distance }}</v-chip>
 				<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="status_icon mr-3" small>fiber_manual_record</v-icon>
 			</v-layout>
 			<v-avatar size="120">
@@ -24,19 +24,37 @@
 </template>
 
 <script>
+import utility from '../utility.js'
+
 export default {
 	name: 'UserCard',
 	props: {
 		user: {
 			type: Object,
-			default: function() { return {} }
+			default: () => { return {} }
 		}
 	},
 	data () {
 		return {
-
+			dis: 0
 		}
-	}
+	},
+	computed: {
+		location () {
+			return { ...this.$store.getters.location }
+		},
+		distance () {
+			const from = this.location
+			const to = {
+				lat: Number(this.user.location.coordinates.latitude),
+				lng: Number(this.user.location.coordinates.longitude)
+			}
+			this.dis = utility.calculateDistance(from, to)
+			console.log(from.lat, from.lng, to.lat, to.lng, this.dis)
+			return `${Math.round(this.dis)} kms away`
+		}
+	},
+
 }
 </script>
 

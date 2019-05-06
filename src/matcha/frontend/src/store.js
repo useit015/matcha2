@@ -7,11 +7,13 @@ export const store = new Vuex.Store({
 	strict: true,
 	state: {
 		status: false,
-		user: {}
+		user: {},
+		location: { lat: 0, lng: 0 }
 	},
 	getters: {
 		user: state => state.user,
 		status: state => state.status,
+		location: state => state.location,
 		profileImage: state => {
 			if (!state.user.images) return ''
 			const image = state.user.images.filter(cur => cur.profile == true)[0]
@@ -33,6 +35,9 @@ export const store = new Vuex.Store({
 			state.status = true
 			state.user = user
 		},
+		locate: (state, location) => {
+			state.location = location
+		}
 	},
 	actions: {
 		updateUser: (context, user) => {
@@ -41,10 +46,21 @@ export const store = new Vuex.Store({
 		login:(context, user) => {
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
+			context.dispatch('locate')
 		},
 		logout: (context) => {
 			localStorage.removeItem('token')
 			context.commit('logout')
+		},
+		locate: (context) => {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(pos => {
+					context.commit('locate', {
+						lat: pos.coords.latitude,
+						lng: pos.coords.longitude
+					})
+				})
+			}
 		}
 	}
 });
