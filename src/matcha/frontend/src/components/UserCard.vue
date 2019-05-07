@@ -6,7 +6,7 @@
 				<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="status_icon mr-3" small>fiber_manual_record</v-icon>
 			</v-layout>
 			<v-avatar size="120">
-				<v-img :src="user.picture.large" aspect-ratio="1"></v-img>
+				<v-img :src="profileImage(user.name)" aspect-ratio="1"></v-img>
 			</v-avatar>
 			<h5 class="name headline text-capitalize mt-2 mb-4">{{ user.name.first }}</h5>
 			<v-layout align-start justify-center>
@@ -15,9 +15,9 @@
 			</v-layout>
 			<v-layout justify-center align-center class="body-1 text-capitalize bottom mb-0 mt-auto py-2 px-4 grey lighten-5">
 				<v-icon color="primary" class="cake_icon px-1" small>cake</v-icon>
-				<span class="pr-1">{{ user.dob.age }}</span>
+				<span class="pr-1">{{ age }}</span>
 				<v-icon color="primary lighten-1" class="location_icon px-1" small>place</v-icon>
-				<span class="text-truncate">{{ `${user.nat}, ${user.location.city}` }}</span>
+				<span class="text-truncate">{{ `${user.city}, ${user.country}` }}</span>
 			</v-layout>
 		</v-layout>
 	</v-card>
@@ -36,24 +36,32 @@ export default {
 	},
 	data () {
 		return {
-			dis: 0
+			
 		}
 	},
 	computed: {
 		location () {
 			return { ...this.$store.getters.location }
 		},
+		age () {
+			return new Date().getFullYear() - new Date(this.user.birthdate).getFullYear()
+		},
 		distance () {
 			const from = this.location
 			const to = {
-				lat: Number(this.user.location.coordinates.latitude),
-				lng: Number(this.user.location.coordinates.longitude)
+				// lat: Number(this.user.location.coordinates.latitude),
+				// lng: Number(this.user.location.coordinates.longitude)
+				lat: 0,
+				lng: 0
 			}
-			this.dis = utility.calculateDistance(from, to)
-			console.log(from.lat, from.lng, to.lat, to.lng, this.dis)
-			return `${Math.round(this.dis)} kms away`
+			return `${Math.round(utility.calculateDistance(from, to))} kms away`
 		}
 	},
+	methods: {
+		profileImage(image) {
+			return utility.getFullPath(image)
+		},
+	}
 
 }
 </script>

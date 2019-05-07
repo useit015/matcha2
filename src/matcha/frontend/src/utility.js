@@ -1,5 +1,6 @@
+const isExternal = url => url.indexOf(':') > -1 || url.indexOf('//') > -1 || url.indexOf('www.') > -1
 export default {
-	getFullPath: file => `http://localhost:80/matcha/uploads/${file ? file : 'image-not-found.jpg'}`,
+	getFullPath: file => isExternal(file) ? file : `http://localhost:80/matcha/uploads/${file ? file : 'default.jpg'}`,
 	formatDate: (date, long) => {
 		if (!date) return ''
 		const d = new Date(date)

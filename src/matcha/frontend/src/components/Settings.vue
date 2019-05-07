@@ -82,7 +82,7 @@ export default {
 			set: function (user) {},
 		},
 		profileImage() {
-			return this.getFullPath(this.$store.getters.profileImage)
+			return utility.getFullPath(this.$store.getters.profileImage)
 		}
 	},
 	watch: {
@@ -94,7 +94,6 @@ export default {
 	methods: {
 		...utility,
 		updateUser() {
-			console.log(this.user.birthdate)
 			this.$http.post(`http://localhost:80/matcha/public/api/user/update/${this.user.id}`, { ...this.user })
 				.then(res => {
 					if (res && res.body && res.body.ok) {

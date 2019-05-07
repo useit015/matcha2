@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import utility from '../utility.js'
+
 export default {
 	name: 'Navbar',
 	data () {
@@ -88,7 +90,7 @@ export default {
 			return this.$store.getters.user;
 		},
 		profileImage() {
-			return `http://localhost:80/matcha/uploads/${this.$store.getters.profileImage}`
+			return utility.getFullPath(this.$store.getters.profileImage)
 		}
 	},
 	methods: {

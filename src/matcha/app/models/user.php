@@ -24,13 +24,13 @@ class User {
 	}
 
 	public function getAllUsers() {
-		$this->db->query('SELECT * FROM users');
+		$this->db->query('SELECT * FROM users, images WHERE users.id = images.user_id');
 		return $this->db->resultSet([]);
 	}
-
+	
 	public function getUser($id) {
-		$this->db->query('SELECT * FROM users WHERE id = ?');
-		$row = $this->db->single([$id]);
+		$this->db->query('SELECT * FROM users');
+		$row = $this->db->single([$id, $id]);
 		return $row ? [$row] : [];
 	}
 

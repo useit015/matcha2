@@ -93,7 +93,14 @@ $app->post('/api/user/install', function(Request $req, Response $res) {
 			'phone' => $req->getParam('phone')
 		];
 		if ($userModel->updateUser($data)) {
-			return $res->withJson(1);
+			$data = [
+				'user_id' => $user->id,
+				'name' => $req->getParam('image'),
+				'profile' => 1
+			];
+			if ($userModel->addImage($data)) {
+				return $res->withJson(1);
+			}
 		}
 	}
 	return $res->withJson(0);

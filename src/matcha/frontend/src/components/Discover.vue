@@ -27,14 +27,14 @@
 						<h4 class="title font-weight-thin mb-4">Near</h4>
 						<v-text-field class="loaction_input mb-4" color="primary" outline solo flat append-icon="place" v-model="location"></v-text-field>
 						<h4 class="title font-weight-thin mb-4">Interests</h4>
-						<v-combobox :items="tags" multiple chips deletable-chips outline solo flat color="primary" class="tags_menu mb-5"></v-combobox>
+						<v-combobox :items="tags" v-model="interests" multiple chips deletable-chips outline solo flat color="primary" class="tags_menu mb-5"></v-combobox>
 						<v-btn round outline large color="primary" class="clear_btn" @click="reset"><v-icon>refresh</v-icon></v-btn>
 					</v-layout>
 				</v-container>
 			</v-flex>
 			<v-flex xl10 md9 sm12>
 				<v-layout row wrap justify-center>
-					<v-flex class="user" v-for="user in filtered" :key="user.login.uuid" xl2 lg3 sm3 ma-3 grow>
+					<v-flex class="user" v-for="user in filtered" :key="user.id" xl2 lg3 sm3 ma-3 grow>
 						<user-card :user="user"/>
 					</v-flex>
 				</v-layout>
@@ -59,6 +59,7 @@ export default {
 	data () {
 		return {
 			users: [],
+			interests: [],
 			gender: null,
 			location: null,
 			loaded: false,
@@ -70,18 +71,29 @@ export default {
 	},
 	computed: {
 		filtered () {
-			return this.users.filter(val => val.dob.age >= this.age[0] && val.dob.age <= this.age[1])
-							.filter(val => val.fame >= this.fame[0] && val.fame <= this.fame[1])
-							.filter(val => !this.gender || val.gender === this.gender)
-							.filter(val => !this.location || this.nats[val.nat].has(this.location)
-									|| val.location.state.has(this.location)
-									|| val.location.city.has(this.location))
+			return this.users
+				.filter(val => val.fame >= this.fame[0] && val.fame <= this.fame[1])
+				.filter(val => !this.gender || val.gender === this.gender)
+				.filter(val => !this.location || val.country.has(this.location) || val.address.has(this.location) || val.city.has(this.location))
+				.filter(val => {
+					const year = new Date(val.birthdate).getFullYear()
+					const now = new Date().getFullYear()
+					return year >= now - this.age[1] && year <=  now - this.age[0]
+				})
+				.filter(val => {
+					if (!this.interests.length) return true
+					for (let i = 0; i < this.interests.length; i++) {
+						if (val.tags.split(',').includes(this.interests[i]))
+							return true
+					}
+					return false
+				})
 		}
 	},
 	created () {
-		this.$http.get('https://randomuser.me/api/?results=100')
+		this.$http.get('http://localhost:80/matcha/public/api/users')
 			.then(res => {
-				this.users = res.body.results.map(cur => {
+				this.users = res.body.map(cur => {
 					return {
 						...cur,
 						fame: Math.random() * 5,

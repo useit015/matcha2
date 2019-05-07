@@ -36,9 +36,10 @@ export default {
 						tags: '',
 						address: cur.location.street,
 						city: cur.location.city,
-						country: this.nats[cur.nat],
+						country: this.nats[cur.nat].toLowerCase(),
 						postal_code: cur.location.postcode,
 						phone: cur.cell,
+						image: cur.picture.large
 					}).then(res => console.log(res))
 					.catch(err => console.error(err))
 				})
@@ -47,7 +48,3 @@ export default {
 	}
 }
 </script>
-
-<style>
-
-</style>
