@@ -13,7 +13,6 @@ $app = new \Slim\App([
 $container = $app->getContainer();
 $container['upload_directory'] = dirname(dirname(__DIR__)) . '/uploads';
 
-
 $app->post('/api/user/login', function(Request $req, Response $res) {
 	$userModel = new User();
 	$loggedIn = $userModel->login($req->getParam('username'), $req->getParam('password'));
@@ -44,6 +43,16 @@ $app->post('/api/user/isloggedin', function(Request $req, Response $res) {
 		$loggedIn->images = $userModel->getUserImages($loggedIn->id);
 	}
 	return $res->withJson($loggedIn);
+});
+
+$app->post('/api/user/position/{id}', function(Request $req, Response $res) {
+	$userModel = new User();
+	$userModel->updateUserPosition([
+		'lat' => $req->getParam('lat'),
+		'lng' => $req->getParam('lng'),
+		'id' => $req->getAttribute('id')
+	]);
+	return $res->withJson(['ok' => true]);
 });
 
 $app->post('/api/user/logout', function(Request $req, Response $res) {
@@ -99,6 +108,11 @@ $app->post('/api/user/install', function(Request $req, Response $res) {
 				'profile' => 1
 			];
 			if ($userModel->addImage($data)) {
+				$userModel->updateUserPosition([
+					'lat' => $req->getParam('lat'),
+					'lng' => $req->getParam('lng'),
+					'id' => $user->id
+				]);
 				return $res->withJson(1);
 			}
 		}

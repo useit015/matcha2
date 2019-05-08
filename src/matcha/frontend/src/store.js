@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex, { mapGetters } from 'vuex'
+import utility from './utility.js'
 
 Vue.use(Vuex)
 
@@ -41,12 +42,13 @@ export const store = new Vuex.Store({
 	},
 	actions: {
 		updateUser: (context, user) => {
+			context.dispatch('locate')
 			context.commit('updateUser', user)
 		},
 		login:(context, user) => {
+			context.dispatch('locate')
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
-			context.dispatch('locate')
 		},
 		logout: (context) => {
 			localStorage.removeItem('token')
@@ -54,24 +56,18 @@ export const store = new Vuex.Store({
 		},
 		locate: (context) => {
 			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(pos => {
-					context.commit('locate', {
+				navigator.geolocation.getCurrentPosition(pos => context.commit('locate', {
 						lat: pos.coords.latitude,
 						lng: pos.coords.longitude
-					})
-				}, err => {
-					Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
-						.then(res => context.commit('locate', {
-							lat: Number(res.body.latitude),
-							lng: Number(res.body.longitude)
-						})).catch(err => console.error(err))
-					})
+				}), () => utility.getLocationFromIp(res => context.commit('locate', {
+					lat: Number(res.body.latitude),
+					lng: Number(res.body.longitude)
+				})))
 			} else {
-				Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
-					.then(res => context.commit('locate', {
-						lat: Number(res.body.latitude),
-						lng: Number(res.body.longitude)
-					})).catch(err => console.error(err))
+				utility.getLocationFromIp(res => context.commit('locate', {
+					lat: Number(res.body.latitude),
+					lng: Number(res.body.longitude)
+				}))
 			}
 		}
 	}

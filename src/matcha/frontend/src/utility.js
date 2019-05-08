@@ -1,4 +1,7 @@
+import Vue from 'vue'
+
 const isExternal = url => url.indexOf(':') > -1 || url.indexOf('//') > -1 || url.indexOf('www.') > -1
+
 export default {
 	getFullPath: file => isExternal(file) ? file : `http://localhost:80/matcha/uploads/${file ? file : 'default.jpg'}`,
 	formatDate: (date, long) => {
@@ -6,6 +9,11 @@ export default {
 		const d = new Date(date)
 		const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 		return `${months[d.getMonth()]} ${long ? `${d.getDate()}, ` : ""}${d.getFullYear()}`
+	},
+	getLocationFromIp: f => {
+		Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
+			.then(res => f(res))
+			.catch(err => console.error(err))
 	},
 	calculateDistance: (from, to, mile) => {
 		if (from.lat == to.lat && from.lng == to.lng)

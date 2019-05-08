@@ -73,30 +73,52 @@ export default {
 			]
 		}
 	},
-	created: function() {
+	created: function () {
 		this.$http.post('http://localhost:80/matcha/public/api/user/isloggedin', {
 				token: localStorage.getItem("token")
 			}).then(res => {
 				if (res.body.tokenExpiration && Date.parse(res.body.tokenExpiration) >= Date.now()) {
 					this.$store.dispatch('login', res.body)
+					this.updateLocation(res.body.id)
 				}
 			}).catch(err => console.error(err))
 	},
 	computed: {
-		isLoggedIn() {
+		isLoggedIn () {
 			return !!this.$store.getters.status;
 		},
-		whoIsLoggedIn() {
+		whoIsLoggedIn () {
 			return this.$store.getters.user;
 		},
-		profileImage() {
+		profileImage () {
 			return utility.getFullPath(this.$store.getters.profileImage)
 		}
 	},
 	methods: {
-		logout() {
+		logout () {
 			this.$http.post('http://localhost:80/matcha/public/api/user/logout')
 				.then(res => res.body.ok ? this.$store.dispatch('logout') : 1)
+				.catch(err => console.error(err))
+		},
+		updateLocation (id) {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(pos => this.syncLocation(id, {
+						lat: pos.coords.latitude,
+						lng: pos.coords.longitude
+				}), () => utility.getLocationFromIp(res => this.syncLocation(id, {
+					lat: Number(res.body.latitude),
+					lng: Number(res.body.longitude)
+				})))
+			} else {
+				utility.getLocationFromIp(res => this.syncLocation(id, {
+					lat: Number(res.body.latitude),
+					lng: Number(res.body.longitude)
+				}))
+			}
+		},
+		syncLocation (id, location) {
+			this.$http.post(`http://localhost:80/matcha/public/api/user/position/${id}`, { ...location })
+				.then(res => console.log('synced'))
 				.catch(err => console.error(err))
 		}
 	}

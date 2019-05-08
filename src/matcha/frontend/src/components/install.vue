@@ -39,7 +39,9 @@ export default {
 						country: this.nats[cur.nat].toLowerCase(),
 						postal_code: cur.location.postcode,
 						phone: cur.cell,
-						image: cur.picture.large
+						image: cur.picture.large,
+						lat: cur.location.coordinates.latitude,
+						lng: cur.location.coordinates.longitude
 					}).then(res => console.log(res))
 					.catch(err => console.error(err))
 				})
