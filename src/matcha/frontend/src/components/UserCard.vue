@@ -1,5 +1,5 @@
 <template>
-	<v-card>
+	<v-card router :to="`/user/${user.user_id}`">
 		<v-layout column justify-center align-center class="pt-1">
 			<v-layout justify-space-between class="top pa-2">
 				<v-chip disabled outline small color="grey lighten-1" class="ml-2">{{ distance }}</v-chip>
@@ -8,10 +8,10 @@
 			<v-avatar size="120">
 				<v-img :src="profileImage(user.name)" aspect-ratio="1"></v-img>
 			</v-avatar>
-			<h5 class="name headline text-capitalize mt-2 mb-4">{{ user.name.first }}</h5>
+			<h5 class="name headline text-capitalize mt-2 mb-4">{{ user.first_name }}</h5>
 			<v-layout align-start justify-center>
-				<p class="caption text-capitalize rating_value">{{ user.fame.toFixed(1) }}</p>
-				<v-rating readonly dense small :value="user.fame" half-increments class="rating"></v-rating>
+				<p class="caption text-capitalize rating_value">{{ user.rating.toFixed(1) }}</p>
+				<v-rating readonly dense small :value="user.rating" half-increments class="rating"></v-rating>
 			</v-layout>
 			<v-layout justify-center align-center class="body-1 text-capitalize bottom mb-0 mt-auto py-2 px-4 grey lighten-5">
 				<v-icon color="primary" class="cake_icon px-1" small>cake</v-icon>
@@ -49,10 +49,8 @@ export default {
 		distance () {
 			const from = this.location
 			const to = {
-				// lat: Number(this.user.location.coordinates.latitude),
-				// lng: Number(this.user.location.coordinates.longitude)
-				lat: 0,
-				lng: 0
+				lat: this.user.lat,
+				lng: this.user.lng
 			}
 			return `${Math.round(utility.calculateDistance(from, to))} kms away`
 		}

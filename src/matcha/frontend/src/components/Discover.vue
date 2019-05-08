@@ -23,7 +23,7 @@
 						<h4 class="title font-weight-thin mb-3">Age</h4>
 						<v-range-slider class="mx-3 mb-4 pt-3" v-model="age" max="85" min="18" step="1" thumb-label="always" thumb-size="25"></v-range-slider>
 						<h4 class="title font-weight-thin mb-3">Fame</h4>
-						<v-range-slider class="mx-3 mb-4 pt-3" v-model="fame" max="5" min="0" step=".5" thumb-label="always" thumb-size="25"></v-range-slider>
+						<v-range-slider class="mx-3 mb-4 pt-3" v-model="rating" max="5" min="0" step=".5" thumb-label="always" thumb-size="25"></v-range-slider>
 						<h4 class="title font-weight-thin mb-4">Near</h4>
 						<v-text-field class="loaction_input mb-4" color="primary" outline solo flat append-icon="place" v-model="location"></v-text-field>
 						<h4 class="title font-weight-thin mb-4">Interests</h4>
@@ -34,7 +34,7 @@
 			</v-flex>
 			<v-flex xl10 md9 sm12>
 				<v-layout row wrap justify-center>
-					<v-flex class="user" v-for="user in filtered" :key="user.id" xl2 lg3 sm3 ma-3 grow>
+					<v-flex class="user" v-for="user in filtered" :key="user.user_id" xl2 lg3 sm3 ma-3 grow>
 						<user-card :user="user"/>
 					</v-flex>
 				</v-layout>
@@ -64,7 +64,7 @@ export default {
 			location: null,
 			loaded: false,
 			age: [18, 85],
-			fame: [0, 5],
+			rating: [0, 5],
 			tags: ['sports', 'cinema', 'music'],
 			nats: countries
 		}
@@ -72,7 +72,7 @@ export default {
 	computed: {
 		filtered () {
 			return this.users
-				.filter(val => val.fame >= this.fame[0] && val.fame <= this.fame[1])
+				.filter(val => val.rating >= this.rating[0] && val.rating <= this.rating[1])
 				.filter(val => !this.gender || val.gender === this.gender)
 				.filter(val => !this.location || val.country.has(this.location) || val.address.has(this.location) || val.city.has(this.location))
 				.filter(val => {
@@ -96,7 +96,7 @@ export default {
 				this.users = res.body.map(cur => {
 					return {
 						...cur,
-						fame: Math.random() * 5,
+						rating: Math.random() * 5,
 						status: Math.round(Math.random() * 100) % 2
 					}
 				})
@@ -106,7 +106,7 @@ export default {
 	},
 	methods: {
 		reset () {
-			this.fame = [0, 5]
+			this.rating = [0, 5]
 			this.age = [18, 85]
 			this.gender = null
 			this.location = null

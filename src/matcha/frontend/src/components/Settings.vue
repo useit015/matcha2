@@ -55,7 +55,6 @@ import ProfileEditor from './ProfileEditor'
 import ProfileGallery from './ProfileGallery'
 import ProfileSettings from './ProfileSettings'
 import utility from '../utility.js'
-const path = require('path')
 
 export default {
 	name: 'Settings',

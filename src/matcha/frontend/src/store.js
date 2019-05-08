@@ -59,8 +59,20 @@ export const store = new Vuex.Store({
 						lat: pos.coords.latitude,
 						lng: pos.coords.longitude
 					})
-				})
+				}, err => {
+					Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
+						.then(res => context.commit('locate', {
+							lat: Number(res.body.latitude),
+							lng: Number(res.body.longitude)
+						})).catch(err => console.error(err))
+					})
+			} else {
+				Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
+					.then(res => context.commit('locate', {
+						lat: Number(res.body.latitude),
+						lng: Number(res.body.longitude)
+					})).catch(err => console.error(err))
 			}
 		}
 	}
-});
+})

@@ -24,13 +24,13 @@ class User {
 	}
 
 	public function getAllUsers() {
-		$this->db->query('SELECT * FROM users, images WHERE users.id = images.user_id');
+		$this->db->query('SELECT * FROM users, images WHERE users.id = images.user_id AND images.profile = 1');
 		return $this->db->resultSet([]);
 	}
 	
 	public function getUser($id) {
-		$this->db->query('SELECT * FROM users');
-		$row = $this->db->single([$id, $id]);
+		$this->db->query('SELECT * FROM users WHERE id = ?');
+		$row = $this->db->single([$id]);
 		return $row ? [$row] : [];
 	}
 
@@ -58,6 +58,14 @@ class User {
 							country = :country,
 							postal_code = :postal_code,
 							phone = :phone
+						WHERE id = :id');
+		return $this->db->execute($data);
+	}
+
+	public function updateUserPosition($data) {
+		$this->db->query('UPDATE users SET
+							lat = :lat,
+							lng = :lng
 						WHERE id = :id');
 		return $this->db->execute($data);
 	}
