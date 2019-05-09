@@ -66,7 +66,9 @@ $app->get('/api/users', function(Request $req, Response $res) {
 
 $app->get('/api/user/{id}', function(Request $req, Response $res) {
 	$userModel = new User();
-	return $res->withJson($userModel->getUser($req->getAttribute('id')));
+	$user = $userModel->getUser($req->getAttribute('id'));
+	$user[0]->images = $userModel->getUserImages($user[0]->id);
+	return $res->withJson($user);
 });
 
 $app->post('/api/user/install', function(Request $req, Response $res) {

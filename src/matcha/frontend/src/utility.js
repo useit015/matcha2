@@ -2,18 +2,27 @@ import Vue from 'vue'
 
 const isExternal = url => url.indexOf(':') > -1 || url.indexOf('//') > -1 || url.indexOf('www.') > -1
 
+const getLocationFromIp = f => {
+	Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
+			.then(res => f(res))
+			.catch(err => console.error(err))
+}
+
+const syncLocation = (id, location) => {
+	Vue.http.post(`http://localhost:80/matcha/public/api/user/position/${id}`, { ...location })
+			.then(() => console.log('synced'))
+			.catch(err => console.error(err))
+}
+
 export default {
+	syncLocation,
+	getLocationFromIp,
 	getFullPath: file => isExternal(file) ? file : `http://localhost:80/matcha/uploads/${file ? file : 'default.jpg'}`,
 	formatDate: (date, long) => {
 		if (!date) return ''
 		const d = new Date(date)
 		const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 		return `${months[d.getMonth()]} ${long ? `${d.getDate()}, ` : ""}${d.getFullYear()}`
-	},
-	getLocationFromIp: f => {
-		Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
-			.then(res => f(res))
-			.catch(err => console.error(err))
 	},
 	calculateDistance: (from, to, mile) => {
 		if (from.lat == to.lat && from.lng == to.lng)
@@ -31,4 +40,20 @@ export default {
 			return !mile ? dist * 1.609344 : dist
 		}
 	},
+	updateLocation: id => {
+		if (navigator.geolocation) {
+			navigator.geolocation.getCurrentPosition(pos => syncLocation(id, {
+					lat: pos.coords.latitude,
+					lng: pos.coords.longitude
+			}), () => getLocationFromIp(res => syncLocation(id, {
+				lat: Number(res.body.latitude),
+				lng: Number(res.body.longitude)
+			})))
+		} else {
+			getLocationFromIp(res => syncLocation(id, {
+				lat: Number(res.body.latitude),
+				lng: Number(res.body.longitude)
+			}))
+		}
+	}
 }

@@ -37,7 +37,7 @@ export default {
 		],
 		usernameRules: [
 			v => !!v || 'This field is required',
-			v => v.length <= 10 || 'Username must be less than 10 characters'
+			v => v.length >= 8 || 'Username must be at least 8 characters long'
 		],
 		emailRules: [
 			v => !!v || 'This field is required',
@@ -46,7 +46,7 @@ export default {
 		passRules: [
 			v => !!v || 'This field is required',
 			v => /^(?=.*\d)(?=.*[A-Za-z])[0-9A-Za-z!@#$%]+$/.test(v) || 'Password must contain at least one letter, one number and one special char',
-			v => (v.length >= 8 && v.length <= 12) || 'Password must be between 8 and 12 characters long'
+			v => v.length >= 8 || 'Password must be at least 8 characters long'
 		]
 	}),
 	methods: {

@@ -28,7 +28,7 @@
 						<v-text-field class="loaction_input mb-4" color="primary" outline solo flat append-icon="place" v-model="location"></v-text-field>
 						<h4 class="title font-weight-thin mb-4">Interests</h4>
 						<v-combobox :items="tags" v-model="interests" multiple chips deletable-chips outline solo flat color="primary" class="tags_menu mb-5"></v-combobox>
-						<v-btn round outline large color="primary" class="clear_btn" @click="reset"><v-icon>refresh</v-icon></v-btn>
+						<v-btn outline block large color="primary" class="clear_btn" @click="reset"><v-icon>refresh</v-icon></v-btn>
 					</v-layout>
 				</v-container>
 			</v-flex>
@@ -93,15 +93,16 @@ export default {
 	created () {
 		this.$http.get('http://localhost:80/matcha/public/api/users')
 			.then(res => {
-				this.users = res.body.map(cur => {
-					return {
-						...cur,
-						rating: Math.random() * 5,
-						status: Math.round(Math.random() * 100) % 2
-					}
-				})
+				this.users = res.body
+								.filter(val => val.user_id != this.$store.getters.user.id)
+								.map(cur => {
+									return {
+										...cur,
+										rating: Math.random() * 5,
+										status: Math.round(Math.random() * 100) % 2
+									}
+								})
 				this.loaded = true
-				console.dir(this.users)
 			}).catch(err => console.error(err))
 	},
 	methods: {

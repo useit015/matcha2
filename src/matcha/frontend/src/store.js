@@ -16,7 +16,7 @@ export const store = new Vuex.Store({
 		status: state => state.status,
 		location: state => state.location,
 		profileImage: state => {
-			if (!state.user.images) return ''
+			if (!state.user.images) return 'default.jpg'
 			const image = state.user.images.filter(cur => cur.profile == true)[0]
 			return image ? image.name : 'default.jpg'
 		}
@@ -46,7 +46,7 @@ export const store = new Vuex.Store({
 			context.commit('updateUser', user)
 		},
 		login:(context, user) => {
-			context.dispatch('locate')
+			context.dispatch('locate', user.id)
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
 		},
@@ -54,20 +54,33 @@ export const store = new Vuex.Store({
 			localStorage.removeItem('token')
 			context.commit('logout')
 		},
-		locate: (context) => {
+		locate: (context, id) => {
+			let loc = {}
 			if (navigator.geolocation) {
-				navigator.geolocation.getCurrentPosition(pos => context.commit('locate', {
+				navigator.geolocation.getCurrentPosition(pos => {
+					loc = {
 						lat: pos.coords.latitude,
 						lng: pos.coords.longitude
-				}), () => utility.getLocationFromIp(res => context.commit('locate', {
-					lat: Number(res.body.latitude),
-					lng: Number(res.body.longitude)
-				})))
-			} else {
-				utility.getLocationFromIp(res => context.commit('locate', {
-					lat: Number(res.body.latitude),
-					lng: Number(res.body.longitude)
+					}
+					context.commit('locate', loc)
+					utility.syncLocation(id, loc)
+				}, () => utility.getLocationFromIp(res => {
+					loc = {
+						lat: Number(res.body.latitude),
+						lng: Number(res.body.longitude)
+					}
+					context.commit('locate', loc)
+					utility.syncLocation(id, loc)
 				}))
+			} else {
+				utility.getLocationFromIp(res => {
+					loc = {
+						lat: Number(res.body.latitude),
+						lng: Number(res.body.longitude)
+					}
+					context.commit('locate', loc)
+					utility.syncLocation(id, loc)
+				})
 			}
 		}
 	}
