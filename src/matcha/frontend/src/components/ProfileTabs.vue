@@ -13,16 +13,17 @@
 export default {
 	name: 'ProfileTabs',
 	data() {
+		this.links = [
+			{ icon: 'person', text: 'Profile', route: 'profile' },
+			{ icon: 'photo_camera', text: 'Pictures', route: 'photo' }
+		]
+		if (this.settings) this.links.push({ icon: 'settings', text: 'Preferences', route: 'setting' })
 		return {
 			activeTab: null,
-			links: [
-				{ icon: 'person', text: 'Profile', route: 'profile' },
-				{ icon: 'photo_camera', text: 'Pictures', route: 'photo' },
-				{ icon: 'settings', text: 'Preferences', route: 'setting' },
-			]
 		}
 	},
 	props: {
+		settings: { type: Boolean, default: false },
 		mobile: { type: Boolean, default: false },
 		active: { type: String, default: '' },
 	},
@@ -47,6 +48,7 @@ export default {
 .v-tabs__container {
 	height: 4rem;
 }
+
 .v-tabs__item--active,
 .v-tabs__item--active > .v-icon {
 	color: var(--color-primary) !important;

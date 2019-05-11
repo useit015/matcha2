@@ -55,4 +55,53 @@ html {
 .app {
 	overflow-x: hidden;
 }
+
+.heading {
+	border-bottom: 1px solid #999;
+}
+
+.parallax {
+	background-image: url(https://images.pexels.com/photos/96422/pexels-photo-96422.jpeg);
+	background-position: center;
+	background-size: cover;
+	height: 25rem;
+	width: 100%;
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+}
+
+.strap {
+	height: 4rem;
+	flex-shrink: 0;
+}
+
+.avatar {
+	transform: translateY(-8rem);
+	position: relative;
+}
+
+.avatar__btn {
+	position: absolute;
+	top: 85%;
+	left: 85%;
+	transform: translate(-50%, -50%) scale(.95);
+}
+
+.v-btn--floating:not(.v-btn--depressed):not(.v-btn--flat),
+.v-btn--floating:not(.v-btn--depressed):not(.v-btn--flat):focus {
+	box-shadow: 0 0 3px rgba(0, 0, 0, .2) inset;
+}
+
+.avatar__img {
+	box-shadow: 0 0 0 3px #f5f5f5,
+		0 1px 5px rgba(0, 0, 0, .2);
+}
+
+.profile {
+	padding-top: 4.5rem;
+}
+
+.main {
+	margin-top: -2.75rem;
+}
 </style>

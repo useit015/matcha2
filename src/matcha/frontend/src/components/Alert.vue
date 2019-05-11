@@ -16,7 +16,7 @@ export default {
 	props: {
 		data: {
 			type: Object,
-			default: function() {
+			default: () => {
 				return {
 					state: false,
 					color: '',

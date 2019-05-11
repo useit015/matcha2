@@ -20,7 +20,7 @@ export default {
 	props: {
 		images: {
 			type: Array,
-			default: function() { return [] }
+			default: () => { return [] }
 		}
 	},
 	methods: {
