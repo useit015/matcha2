@@ -15,6 +15,8 @@
 
 <script>
 import utility from '../utility.js'
+import moment from 'moment'
+
 export default {
 	name: 'ProfileBadge',
 	props: {
@@ -27,19 +29,19 @@ export default {
 		fields () {
 			return [
 				{
-					exist: true,
-					icon: 'calendar_today',
-					text: `Joined ${this.formatDate(this.user.created_at, false)}`
+					 exist: true,
+					 icon: 'calendar_today',
+					 text: `Joined ${moment(this.user.created_at).format('MMMM YYYY')}`
 				},
 				{
-					exist: !!this.user.birthdate,
-					icon: 'child_care',
-					text: `Born ${this.formatDate(this.user.birthdate, true)}`
+					 exist: !!this.user.birthdate,
+					 icon: 'child_care',
+					 text: `Born ${moment(this.user.birthdate).format('MMMM D, YYYY')}`
 				},
 				{
-					exist: !!this.user.city && !!this.user.country,
-					icon: 'location_on',
-					text: `${this.user.city}, ${this.user.country}`
+					 exist: !!this.user.city && !!this.user.country,
+					 icon: 'location_on',
+					 text: `${this.user.city}, ${this.user.country}`
 				},
 			]
 		}

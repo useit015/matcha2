@@ -78,6 +78,7 @@ html {
 .avatar {
 	transform: translateY(-8rem);
 	position: relative;
+	flex-shrink: 0;
 }
 
 .avatar__btn {

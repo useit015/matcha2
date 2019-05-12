@@ -3,7 +3,12 @@
 		<v-layout column justify-center align-center class="pt-1">
 			<v-layout justify-space-between class="top pa-2">
 				<v-chip disabled outline small color="grey lighten-1" class="ml-2">{{ distance }}</v-chip>
-				<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="status_icon mr-3" small>fiber_manual_record</v-icon>
+				<v-tooltip bottom class="status_container">
+					<template v-slot:activator="{ on }">
+						<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="status_icon mr-3" small v-on="on">fiber_manual_record</v-icon>
+					</template>
+					<span>{{ lastSeen }}</span>
+				</v-tooltip>
 			</v-layout>
 			<v-avatar size="120">
 				<v-img :src="profileImage(user.name)" aspect-ratio="1"></v-img>
@@ -25,6 +30,7 @@
 
 <script>
 import utility from '../utility.js'
+import moment from 'moment'
 
 export default {
 	name: 'UserCard',
@@ -53,12 +59,18 @@ export default {
 				lng: this.user.lng
 			}
 			return `${Math.round(utility.calculateDistance(from, to))} kms away`
+		},
+		lastSeen () {
+			if (this.user.status) return 'online'
+			if (this.user.tokenExpiration)
+				return moment(this.user.tokenExpiration).subtract(2, 'hours').fromNow()
+			return moment(this.user.created_at).fromNow()
 		}
 	},
 	methods: {
 		profileImage(image) {
 			return utility.getFullPath(image)
-		},
+		}
 	}
 
 }
@@ -103,6 +115,16 @@ export default {
 .rating_value {
 	margin-left: 7px;
 	margin-right: -3px;
+}
+
+.status_container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.status_icon {
+	margin-left: auto !important;
 }
 
 .location_icon {

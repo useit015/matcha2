@@ -18,12 +18,6 @@ export default {
 	syncLocation,
 	getLocationFromIp,
 	getFullPath: file => isExternal(file) ? file : `http://localhost:80/matcha/uploads/${file ? file : 'default.jpg'}`,
-	formatDate: (date, long) => {
-		if (!date) return ''
-		const d = new Date(date)
-		const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-		return `${months[d.getMonth()]} ${long ? `${d.getDate()}, ` : ""}${d.getFullYear()}`
-	},
 	calculateDistance: (from, to, mile) => {
 		if (from.lat == to.lat && from.lng == to.lng)
 			return 0

@@ -4,7 +4,7 @@
 		<v-icon v-if="isEditing">close</v-icon>
 		<v-icon v-else>edit</v-icon>
 	</v-btn>
-	<h1 class="heading display-2 text-xs-center text-md-left font-weight-thin pt-4 pb-3 mb-4 hidden-sm-and-down">Account Informations</h1>
+	<h1 class="heading display-2 font-weight-thin pt-4 pb-3 mb-4 hidden-sm-and-down">Informations</h1>
 	<v-form class="mt-4">
 		<v-layout wrap>
 			<v-flex xs12>
@@ -22,7 +22,7 @@
 			<v-flex xs12 sm6>
 				<v-menu v-model="menu" :close-on-content-click="false" :nudge-right="40" lazy transition="scale-transition" offset-y full-width min-width="290px">
 					<template v-slot:activator="{ on }">
-						<v-text-field :disabled="!isEditing" color="primary" :value="formatDate(user.birthdate, true)" label="Birth Date" readonly v-on="on"></v-text-field>
+						<v-text-field :disabled="!isEditing" color="primary" :value="birthdate" label="Birth Date" readonly v-on="on"></v-text-field>
 					</template>
 					<v-date-picker color="primary" v-model="user.birthdate" @input="menu = false"></v-date-picker>
 				</v-menu>
@@ -62,6 +62,8 @@
 <script>
 import { VueTagsInput, createTags } from '@johmun/vue-tags-input'
 import utility from '../utility.js'
+import moment from 'moment'
+
 export default {
 	name: 'ProfileForm',
 	components: { VueTagsInput },
@@ -88,6 +90,11 @@ export default {
 		},
 		tags: function() {
 			this.user.tags = this.tags.map(cur => cur.text.toLowerCase()).join(',')
+		}
+	},
+	computed : {
+		birthdate () {
+			return moment(this.user.birthdate).format('MMMM D, YYYY')
 		}
 	},
 	methods: {

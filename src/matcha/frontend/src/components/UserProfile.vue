@@ -10,9 +10,21 @@
 					</v-avatar>
 				</v-flex>
 				<profile-tabs :active="activeTab" @change-tab="changeTab"></profile-tabs>
-				<v-btn icon flat large color="primary" :disabled="userCantLike" @click="liked = !liked">
-					<v-icon>{{ liked ? 'favorite' : 'favorite_border'}}</v-icon>
-				</v-btn>
+				<v-tooltip bottom>
+					<template v-slot:activator="{ on }">
+						<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="profile-status_icon mr-3 hidden-xs-only" small v-on="on">fiber_manual_record</v-icon>
+					</template>
+					<span>{{ lastSeen }}</span>
+				</v-tooltip>
+				<v-tooltip bottom>
+					<template v-slot:activator="{ on }">
+						<v-btn icon flat large color="primary" :disabled="userCantLike" @click="liked = !liked"  v-on="on" class="hidden-xs-only">
+							<v-icon>{{ liked ? 'favorite' : 'favorite_border' }}</v-icon>
+						</v-btn>
+					</template>
+					<span>{{ liked ? 'unmatch' : 'match' }}</span>
+				</v-tooltip>
+				<v-chip disabled outline small color="grey lighten-1" class="mt-3 ml-2 hidden-xs-only">{{ distance }}</v-chip>
 			</v-layout>
 		</v-container>
 	</v-layout>
@@ -24,6 +36,17 @@
 			<v-flex xs12 sm10 md8 class="pa-0 grey--text main">
 				<v-tabs-items v-model="activeTab">
 					<v-tab-item value="tab-profile">
+						<v-container>
+							<h1 class="heading display-2 font-weight-thin py-3 mb-4 hidden-sm-and-down">Informations</h1>
+							<v-layout column class="title text-capitalize">
+								<v-container py-3 v-for="item in informations" :key="item.label">
+									<v-layout>
+										<v-flex xs6>{{ `${item.label}:` }}</v-flex>
+										<v-flex xs6 class="infos">{{ item.content }}</v-flex>
+									</v-layout>
+								</v-container>
+							</v-layout>
+						</v-container>
 					</v-tab-item>
 					<v-tab-item value="tab-photo">
 						<profile-gallery :images="user.images"></profile-gallery>
@@ -36,6 +59,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import utility from '../utility.js'
 import ProfileForm from './ProfileForm'
 import ProfileTabs from './ProfileTabs'
@@ -74,7 +98,42 @@ export default {
 		userCantLike () {
 			const imgs = this.$store.getters.user.images
 			return imgs ? !imgs.length : true
-		}
+		},
+		age () {
+			return new Date().getFullYear() - new Date(this.user.birthdate).getFullYear()
+		},
+		lastSeen () {
+			if (this.user.status) return 'online'
+			if (this.user.tokenExpiration)
+				return moment(this.user.tokenExpiration).subtract(2, 'hours').fromNow()
+			return moment(this.user.created_at).fromNow()
+		},
+		informations () {
+			return [
+				{ label: 'Username', content: this.user.username },
+				{ label: 'Fisrt Name', content: this.user.first_name },
+				{ label: 'Last Name', content: this.user.last_name },
+				{ label: 'Age', content: this.age },
+				{ label: 'Gender', content: this.user.gender },
+				{ label: 'Looking For', content: this.user.looking },
+				{ label: 'Address', content: this.user.address },
+				{ label: 'City', content: this.user.city },
+				{ label: 'Country', content: this.user.country },
+				{ label: 'Postal Code', content: this.user.postal_code },
+				{ label: 'Phone Number', content: this.user.phone }
+			]
+		},
+		location () {
+			return { ...this.$store.getters.location }
+		},
+		distance () {
+			const from = this.location
+			const to = {
+				lat: this.user.lat,
+				lng: this.user.lng
+			}
+			return `${Math.round(utility.calculateDistance(from, to))} kms away`
+		},
 	},
 	methods: {
 		...utility,
@@ -91,7 +150,16 @@ export default {
 </script>
 
 <style>
+.profile-status_icon {
+	align-self: flex-start;
+	margin-top: 1.5rem;
+}
+
 .user_profile {
 	height: 100%;
+}
+
+.infos {
+	color:#666;
 }
 </style>

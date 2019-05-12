@@ -14,10 +14,13 @@ export default {
 	name: 'ProfileTabs',
 	data() {
 		this.links = [
-			{ icon: 'person', text: 'Profile', route: 'profile' },
+			{ icon: 'person', text: 'Info', route: 'profile' },
 			{ icon: 'photo_camera', text: 'Pictures', route: 'photo' }
 		]
-		if (this.settings) this.links.push({ icon: 'settings', text: 'Preferences', route: 'setting' })
+		if (this.settings) {
+			this.links[0].text = 'Profile'
+			this.links.push({ icon: 'settings', text: 'Preferences', route: 'setting' })
+		}
 		return {
 			activeTab: null,
 		}
