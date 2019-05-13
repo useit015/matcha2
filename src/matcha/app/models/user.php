@@ -125,8 +125,8 @@ class User {
 		} else
 		return false;
 	}
-	
-	function saveImage64($data, $dir, $user){
+
+	public function saveImage64($data, $dir, $user) {
 		list($type, $data) = explode(';', $data);
 		list(,$ext) = explode('/', $type);
 		list(,$data) = explode(',', $data);
@@ -135,6 +135,25 @@ class User {
 		$dest = $user.'-'.uniqid('', true).'.'.$ext;
 		file_put_contents($dir.'/'.$dest, base64_decode($data));
 		return $dest;
+	}
+
+	public function match($matcher, $matched) {
+		$this->db->query('SELECT * FROM matches where matcher = ? AND matched = ?');
+		if (!$this->db->resultSet([$matcher, $matched])) {
+			$this->db->query('INSERT INTO matches (matcher, matched) VALUES (?, ?)');
+			return $this->db->execute([$matcher, $matched]);
+		}
+		return [];
+	}
+
+	public function unmatch($matcher, $matched) {
+		$this->db->query('DELETE FROM matches where matcher = ? AND matched = ?');
+		return $this->db->execute([$matcher, $matched]);
+	}
+
+	public function getMatches($id) {
+		$this->db->query('SELECT matched as id FROM matches where matcher = ?');
+		return $this->db->resultSet([$id]);
 	}
 
 }

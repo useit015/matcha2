@@ -14,7 +14,14 @@ const syncLocation = (id, location) => {
 			.catch(err => console.error(err))
 }
 
+const getFollowing = (f, id) => {
+	Vue.http.post(`http://localhost:80/matcha/public/api/user/getmatches`, { id })
+			.then(res => f(res))
+			.catch(err => console.error(err))
+}
+
 export default {
+	getFollowing,
 	syncLocation,
 	getLocationFromIp,
 	getFullPath: file => isExternal(file) ? file : `http://localhost:80/matcha/uploads/${file ? file : 'default.jpg'}`,

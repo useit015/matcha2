@@ -16,15 +16,15 @@
 					</template>
 					<span>{{ lastSeen }}</span>
 				</v-tooltip>
+				<v-chip disabled outline small color="grey lighten-1" class="mt-3 ml-2 hidden-xs-only">{{ distance }}</v-chip>
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
-						<v-btn icon flat large color="primary" :disabled="userCantLike" @click="liked = !liked"  v-on="on" class="hidden-xs-only">
+						<v-btn icon flat large color="primary" :disabled="userCantLike" @click="match"  v-on="on" class="hidden-xs-only">
 							<v-icon>{{ liked ? 'favorite' : 'favorite_border' }}</v-icon>
 						</v-btn>
 					</template>
 					<span>{{ liked ? 'unmatch' : 'match' }}</span>
 				</v-tooltip>
-				<v-chip disabled outline small color="grey lighten-1" class="mt-3 ml-2 hidden-xs-only">{{ distance }}</v-chip>
 			</v-layout>
 		</v-container>
 	</v-layout>
@@ -37,6 +37,12 @@
 				<v-tabs-items v-model="activeTab">
 					<v-tab-item value="tab-profile">
 						<v-container>
+							<div v-if="user.biography">
+								<h1 class="heading display-2 font-weight-thin py-3 mb-4 hidden-sm-and-down">About</h1>
+								<v-container class="infos subheading py-2">
+									{{ user.biography }}
+								</v-container>
+							</div>
 							<h1 class="heading display-2 font-weight-thin py-3 mb-4 hidden-sm-and-down">Informations</h1>
 							<v-layout column class="title text-capitalize">
 								<v-container py-3 v-for="item in informations" :key="item.label">
@@ -80,7 +86,6 @@ export default {
 		return {
 			activeTab: 'tab-profile',
 			user: {},
-			liked: false
 		}
 	},
 	created () {
@@ -92,6 +97,15 @@ export default {
 			.catch(err => console.error(err))
 	},
 	computed: {
+		liked: {
+			get () {
+				for (let match of this.$store.getters.following)
+					if (match == this.user.id)
+						return true 
+				return false
+			},
+			set () { this.$store.dispatch('getFollowing', this.$store.getters.user.id) }
+		},
 		profileImage () {
 			return this.getFullPath(this.getProfileImage())
 		},
@@ -144,6 +158,14 @@ export default {
 			if (!this.user || !this.user.images) return 'default.jpg'
 			const image = this.user.images.filter(cur => cur.profile == true)[0]
 			return image ? image.name : 'default.jpg'
+		},
+		match () {
+			this.$http.post(`http://localhost:80/matcha/public/api/user/match/${this.$route.params.id}`, {
+				matcher: this.$store.getters.user.id,
+				liked: this.liked
+			}).then(res => {
+				this.liked = res.matched
+			}).catch(err => console.error(err))
 		}
 	}
 }

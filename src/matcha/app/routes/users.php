@@ -242,6 +242,7 @@ $app->post('/api/user/image/{id}', function(Request $req, Response $res) {
 $app->post('/api/user/delete/{id}', function(Request $req, Response $res) {
 	$userModel = new User();
 	$id = $req->getAttribute('id');
+	$state = [ 'ok' => true ];
 	if ($userModel->isUser($id)) {
 		if (!$userModel->deleteUser($id)) {
 			$state['ok'] = false;
@@ -250,6 +251,35 @@ $app->post('/api/user/delete/{id}', function(Request $req, Response $res) {
 	} else {
 		$state['ok'] = false;
 		$state['err'] = 'User not found';
+	}
+	return $res->withJson($state);
+});
+
+$app->post('/api/user/getmatches', function(Request $req, Response $res) {
+	$userModel = new User();
+	$id = $req->getParam('id');
+	return $res->withJson($userModel->getMatches($id));
+});
+
+$app->post('/api/user/match/{id}', function(Request $req, Response $res) {
+	$userModel = new User();
+	$matched = $req->getAttribute('id');
+	$matcher = $req->getParam('matcher');
+	$state = [ 'ok' => true ];
+	if (!$req->getParam('liked')) {
+		if ($userModel->match($matcher, $matched)) {
+			$state['match'] = true;
+		} else {
+			$state['ok'] = false;
+			$state['err'] = 'Cant match';
+		}
+	} else {
+		if ($userModel->unmatch($matcher, $matched)) {
+			$state['match'] = false;
+		} else {
+			$state['ok'] = false;
+			$state['err'] = 'Cant unmatch';
+		}
 	}
 	return $res->withJson($state);
 });

@@ -9,12 +9,14 @@ export const store = new Vuex.Store({
 	state: {
 		status: false,
 		user: {},
-		location: { lat: 0, lng: 0 }
+		location: { lat: 0, lng: 0 },
+		following: []
 	},
 	getters: {
 		user: state => state.user,
 		status: state => state.status,
 		location: state => state.location,
+		following: state => state.following,
 		profileImage: state => {
 			if (!state.user.images) return 'default.jpg'
 			const image = state.user.images.filter(cur => cur.profile == true)[0]
@@ -38,15 +40,19 @@ export const store = new Vuex.Store({
 		},
 		locate: (state, location) => {
 			state.location = location
+		},
+		getFollowing: (state, following) => {
+			state.following = following
 		}
 	},
 	actions: {
 		updateUser: (context, user) => {
-			context.dispatch('locate')
+			context.dispatch('locate', user.id)
 			context.commit('updateUser', user)
 		},
 		login:(context, user) => {
 			context.dispatch('locate', user.id)
+			context.dispatch('getFollowing', user.id)
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
 		},
@@ -82,6 +88,9 @@ export const store = new Vuex.Store({
 					utility.syncLocation(id, loc)
 				})
 			}
+		},
+		getFollowing: (context, id) => {
+			utility.getFollowing(res => context.commit('getFollowing', res.body.map(cur => cur.id)), id)
 		}
 	}
 })
