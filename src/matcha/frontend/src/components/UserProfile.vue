@@ -17,14 +17,12 @@
 					<span>{{ lastSeen }}</span>
 				</v-tooltip>
 				<v-chip disabled outline small color="grey lighten-1" class="mt-3 ml-2 hidden-xs-only">{{ distance }}</v-chip>
-				<v-tooltip bottom>
-					<template v-slot:activator="{ on }">
-						<v-btn icon flat large color="primary" :disabled="userCantLike" @click="match"  v-on="on" class="hidden-xs-only">
-							<v-icon>{{ liked ? 'favorite' : 'favorite_border' }}</v-icon>
-						</v-btn>
-					</template>
-					<span>{{ liked ? 'unmatch' : 'match' }}</span>
-				</v-tooltip>
+				<v-btn icon flat large color="primary" :disabled="userCantLike" @click="match"  class="hidden-xs-only">
+					<v-icon>{{ liked ? 'favorite' : 'favorite_border' }}</v-icon>
+				</v-btn>
+				<v-btn icon flat large color="primary" :disabled="!userCanChat" class="hidden-xs-only mx-0">
+					<v-icon>chat_bubble</v-icon>
+				</v-btn>
 			</v-layout>
 		</v-container>
 	</v-layout>
@@ -104,7 +102,7 @@ export default {
 						return true 
 				return false
 			},
-			set () { this.$store.dispatch('getFollowing', this.$store.getters.user.id) }
+			set () { this.$store.dispatch('syncMatches', this.$store.getters.user.id) }
 		},
 		profileImage () {
 			return this.getFullPath(this.getProfileImage())
@@ -112,6 +110,9 @@ export default {
 		userCantLike () {
 			const imgs = this.$store.getters.user.images
 			return imgs ? !imgs.length : true
+		},
+		userCanChat () {
+			return this.$store.getters.matches.includes(this.user.id)
 		},
 		age () {
 			return new Date().getFullYear() - new Date(this.user.birthdate).getFullYear()

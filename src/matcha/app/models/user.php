@@ -152,8 +152,8 @@ class User {
 	}
 
 	public function getMatches($id) {
-		$this->db->query('SELECT matched as id FROM matches where matcher = ?');
-		return $this->db->resultSet([$id]);
+		$this->db->query('SELECT * FROM matches where matcher = ? OR matched = ?');
+		return $this->db->resultSet([$id, $id]);
 	}
 
 }

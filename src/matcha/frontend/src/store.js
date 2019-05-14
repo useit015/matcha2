@@ -10,13 +10,16 @@ export const store = new Vuex.Store({
 		status: false,
 		user: {},
 		location: { lat: 0, lng: 0 },
-		following: []
+		following: [],
+		followers: [],
 	},
 	getters: {
 		user: state => state.user,
 		status: state => state.status,
 		location: state => state.location,
 		following: state => state.following,
+		followers: state => state.followers,
+		matches: state => state.following.filter(cur => state.followers.indexOf(cur) != -1),
 		profileImage: state => {
 			if (!state.user.images) return 'default.jpg'
 			const image = state.user.images.filter(cur => cur.profile == true)[0]
@@ -41,8 +44,9 @@ export const store = new Vuex.Store({
 		locate: (state, location) => {
 			state.location = location
 		},
-		getFollowing: (state, following) => {
-			state.following = following
+		syncMatches: (state, matches) => {
+			state.followers = matches.followers
+			state.following = matches.following
 		}
 	},
 	actions: {
@@ -52,7 +56,7 @@ export const store = new Vuex.Store({
 		},
 		login:(context, user) => {
 			context.dispatch('locate', user.id)
-			context.dispatch('getFollowing', user.id)
+			context.dispatch('syncMatches', user.id)
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
 		},
@@ -70,27 +74,22 @@ export const store = new Vuex.Store({
 					}
 					context.commit('locate', loc)
 					utility.syncLocation(id, loc)
-				}, () => utility.getLocationFromIp(res => {
-					loc = {
-						lat: Number(res.body.latitude),
-						lng: Number(res.body.longitude)
-					}
+				}, () => utility.getLocationFromIp(loc => {
 					context.commit('locate', loc)
 					utility.syncLocation(id, loc)
 				}))
 			} else {
-				utility.getLocationFromIp(res => {
-					loc = {
-						lat: Number(res.body.latitude),
-						lng: Number(res.body.longitude)
-					}
+				utility.getLocationFromIp(loc => {
 					context.commit('locate', loc)
 					utility.syncLocation(id, loc)
 				})
 			}
 		},
-		getFollowing: (context, id) => {
-			utility.getFollowing(res => context.commit('getFollowing', res.body.map(cur => cur.id)), id)
+		syncMatches: (context, id) => {
+			utility.getMatches(res => context.commit('syncMatches', {
+				following: res.body.filter(cur => cur.matcher == id).map(cur => cur.matched),
+				followers: res.body.filter(cur => cur.matched == id).map(cur => cur.matcher)
+			}), id)
 		}
 	}
 })
