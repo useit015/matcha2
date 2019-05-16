@@ -23,7 +23,7 @@
 	<v-container fill-height grid-list-xl class="profile">
 		<v-layout justify-center wrap>
 			<v-flex xs12 sm8 md4>
-				<profile-badge :user="user"></profile-badge>
+				<profile-badge :user="user" settings></profile-badge>
 			</v-flex>
 			<v-flex xs12 sm10 md8 class="main pa-0 grey--text">
 				<profile-tabs settings :active="activeTab" @change-tab="changeTab" mobile></profile-tabs>
@@ -48,13 +48,13 @@
 
 <script>
 import Alert from './Alert'
+import utility from '../utility.js'
 import ProfileForm from './ProfileForm'
 import ProfileTabs from './ProfileTabs'
 import ProfileBadge from './ProfileBadge'
 import ProfileEditor from './ProfileEditor'
 import ProfileGallery from './ProfileGallery'
 import ProfileSettings from './ProfileSettings'
-import utility from '../utility.js'
 
 export default {
 	name: 'Settings',
@@ -80,7 +80,7 @@ export default {
 			get: function () { return { ...this.$store.getters.user } },
 			set: function (user) {},
 		},
-		profileImage() {
+		profileImage () {
 			return utility.getFullPath(this.$store.getters.profileImage)
 		}
 	},
@@ -98,6 +98,9 @@ export default {
 					if (res && res.body && res.body.ok) {
 						this.showAlert('success', 'Your account has been updated successfuly')
 						this.$store.dispatch('updateUser', this.user)
+					} else {
+						this.showAlert('red', 'Ouups something went wrong!')
+						console.log(res)
 					}
 				}).catch(err => console.error(err))
 		},
@@ -110,6 +113,9 @@ export default {
 					if (res && res.body && res.body.ok) {
 						this.showAlert('success', 'You profile image has been updated successfuly')
 						this.$store.commit('updateProfileImage', res.body.name)
+					} else {
+						this.showAlert('red', 'Ouups something went wrong!')
+						console.log(res)
 					}
 				}).catch(err => console.error(err))
 		},

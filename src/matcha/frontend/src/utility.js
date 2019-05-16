@@ -2,12 +2,10 @@ import Vue from 'vue'
 
 const isExternal = url => url.indexOf(':') > -1 || url.indexOf('//') > -1 || url.indexOf('www.') > -1
 
-const translateLocation = loc => {
-	return {
-		lat: Number(loc.latitude),
-		lng: Number(loc.longitude)
-	}
-}
+const translateLocation = loc => ({
+	lat: Number(loc.latitude),
+	lng: Number(loc.longitude)
+})
 
 const getLocationFromIp = f => {
 	Vue.http.get('https://get.geojs.io/v1/ip/geo.json')
@@ -27,8 +25,15 @@ const getMatches = (f, id) => {
 			.catch(err => console.error(err))
 }
 
+const getBlocked = (f, id) => {
+	Vue.http.post(`http://localhost:80/matcha/public/api/user/getblocked`, { id })
+			.then(res => f(res))
+			.catch(err => console.error(err))
+}
+
 export default {
 	getMatches,
+	getBlocked,
 	syncLocation,
 	getLocationFromIp,
 	getFullPath: file => isExternal(file) ? file : `http://localhost:80/matcha/uploads/${file ? file : 'default.jpg'}`,

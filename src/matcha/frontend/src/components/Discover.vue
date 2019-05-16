@@ -72,6 +72,9 @@ export default {
 	computed: {
 		filtered () {
 			return this.users
+				.filter(val => val.user_id != this.user.id)
+				.filter(val => !this.$store.getters.blocked.includes(val.user_id))
+				.filter(val => !this.$store.getters.blockedBy.includes(val.user_id))
 				.filter(val => val.rating >= this.rating[0] && val.rating <= this.rating[1])
 				.filter(val => !this.gender || val.gender === this.gender)
 				.filter(val => !this.location || val.country.has(this.location) || val.address.has(this.location) || val.city.has(this.location))
@@ -81,27 +84,26 @@ export default {
 					return year >= now - this.age[1] && year <=  now - this.age[0]
 				})
 				.filter(val => {
-					if (!this.interests.length) return true
-					for (let i = 0; i < this.interests.length; i++) {
-						if (val.tags.split(',').includes(this.interests[i]))
+					if (!this.interests.length)
+						return true
+					for (const interest of this.interests)
+						if (val.tags.split(',').includes(interest))
 							return true
-					}
 					return false
 				})
+		},
+		user () {
+			return this.$store.getters.user
 		}
 	},
 	created () {
 		this.$http.get('http://localhost:80/matcha/public/api/users')
 			.then(res => {
-				this.users = res.body
-								.filter(val => val.user_id != this.$store.getters.user.id)
-								.map(cur => {
-									return {
-										...cur,
-										rating: Math.random() * 5,
-										status: Math.round(Math.random() * 100) % 2
-									}
-								})
+				this.users = res.body.map(cur => ({
+									...cur,
+									rating: Number(cur.rating),
+									status: Math.round(Math.random() * 100) % 2
+								}))
 				this.loaded = true
 			}).catch(err => console.error(err))
 	},

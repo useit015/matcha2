@@ -12,7 +12,7 @@
 				<profile-tabs :active="activeTab" @change-tab="changeTab"></profile-tabs>
 				<v-tooltip bottom>
 					<template v-slot:activator="{ on }">
-						<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="profile-status_icon mr-3 hidden-xs-only" small v-on="on">fiber_manual_record</v-icon>
+						<v-icon :color="`${user.status ? 'green' : 'grey'} lighten-2`" class="profile-status_icon mx-3 hidden-xs-only" small v-on="on">fiber_manual_record</v-icon>
 					</template>
 					<span>{{ lastSeen }}</span>
 				</v-tooltip>
@@ -21,8 +21,31 @@
 					<v-icon>{{ liked ? 'favorite' : 'favorite_border' }}</v-icon>
 				</v-btn>
 				<v-btn icon flat large color="primary" :disabled="!userCanChat" class="hidden-xs-only mx-0">
-					<v-icon>chat_bubble</v-icon>
+					<v-icon>{{ userCanChat ? 'chat_bubble' : 'chat_bubble_outline' }}</v-icon>
 				</v-btn>
+				<v-speed-dial v-model="fab" direction="bottom" transition="slide-y-reverse-transition" class="speed_list">
+					<template v-slot:activator>
+						<v-btn icon flat small large v-model="fab" color="primary">
+							<v-icon>more_vert</v-icon>
+						</v-btn>
+					</template>
+					<v-tooltip left>
+						<template v-slot:activator="{ on }">
+							<v-btn fab dark small color="primary darken-2" @click="action('reported')" v-on="on">
+								<v-icon>warning</v-icon>
+							</v-btn>
+						</template>
+						<span>Report</span>
+					</v-tooltip>
+					<v-tooltip left>
+						<template v-slot:activator="{ on }">
+							<v-btn fab dark small color="primary darken-2" @click="block" v-on="on">
+								<v-icon>delete_forever</v-icon>
+							</v-btn>
+						</template>
+						<span>Block</span>
+					</v-tooltip>
+				</v-speed-dial>
 			</v-layout>
 		</v-container>
 	</v-layout>
@@ -84,15 +107,33 @@ export default {
 		return {
 			activeTab: 'tab-profile',
 			user: {},
+			fab: false,
+			items: [
+				{ title: 'Block', handler: e => console.log('nigga1 -->', e) },
+				{ title: 'Report', handler: e => console.log('nigga2 -->', e) }
+			]
 		}
 	},
 	created () {
 		this.$http.get(`http://localhost:80/matcha/public/api/user/${this.$route.params.id}`)
 			.then(res => {
-				this.user = res.body[0]
+				this.user = {
+					...res.body[0],
+					rating: Number(res.body[0].rating)
+				}
 				console.log('user here -->', this.user)
-			})
-			.catch(err => console.error(err))
+			}).catch(err => console.error(err))
+	},
+	watch: {
+		blocked: {
+			immediate: true,
+			handler () {
+				const id = this.$route.params.id
+				if (Array.isArray(this.blocked) && Array.isArray(this.$store.getters.blockedBy))
+					if (this.blocked.includes(id) || this.$store.getters.blockedBy.includes(id))
+						this.$router.go(-1)
+			}
+		}
 	},
 	computed: {
 		liked: {
@@ -103,6 +144,9 @@ export default {
 				return false
 			},
 			set () { this.$store.dispatch('syncMatches', this.$store.getters.user.id) }
+		},
+		blocked () {
+			return this.$store.getters.blocked
 		},
 		profileImage () {
 			return this.getFullPath(this.getProfileImage())
@@ -147,7 +191,7 @@ export default {
 				lat: this.user.lat,
 				lng: this.user.lng
 			}
-			return `${Math.round(utility.calculateDistance(from, to))} kms away`
+			return `${Math.round(this.calculateDistance(from, to))} kms away`
 		},
 	},
 	methods: {
@@ -167,6 +211,17 @@ export default {
 			}).then(res => {
 				this.liked = res.matched
 			}).catch(err => console.error(err))
+		},
+		block () {
+			this.$http.post(`http://localhost:80/matcha/public/api/user/block/${this.$route.params.id}`, {
+				blocker: this.$store.getters.user.id
+			}).then(res => {
+				this.$store.dispatch('syncBlocked', this.$store.getters.user.id)
+				this.$router.go(-1)
+			}).catch(err => console.error(err))
+		},
+		action (s) {
+			console.log(s, ' --> ', this.user.id)
 		}
 	}
 }
@@ -184,5 +239,18 @@ export default {
 
 .infos {
 	color:#666;
+}
+
+.actions {
+	box-shadow: none !important;
+}
+
+.more_icon {
+	transform: scale(1.25);
+}
+
+.speed_list > .v-speed-dial__list {
+	top: 4.25rem;
+	z-index: 5;
 }
 </style>

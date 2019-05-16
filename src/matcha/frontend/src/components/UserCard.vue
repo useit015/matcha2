@@ -95,9 +95,15 @@ export default {
 }
 
 .v-card {
+	box-sizing: border-box;
 	height: 100%;
 	box-shadow: none;
 	border: 1px solid rgba(0, 0, 0, .1) !important;
+	transition: all .3s ease-out;
+}
+
+.v-card:hover {
+	border: 1px solid rgba(25, 25, 25, .3) !important;
 }
 
 .v-card__title {

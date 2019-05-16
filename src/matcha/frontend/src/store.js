@@ -12,13 +12,17 @@ export const store = new Vuex.Store({
 		location: { lat: 0, lng: 0 },
 		following: [],
 		followers: [],
+		blocked: [],
+		blockedBy: []
 	},
 	getters: {
 		user: state => state.user,
 		status: state => state.status,
+		blocked: state => state.blocked,
 		location: state => state.location,
 		following: state => state.following,
 		followers: state => state.followers,
+		blockedBy: state => state.blockedBy,
 		matches: state => state.following.filter(cur => state.followers.indexOf(cur) != -1),
 		profileImage: state => {
 			if (!state.user.images) return 'default.jpg'
@@ -47,6 +51,11 @@ export const store = new Vuex.Store({
 		syncMatches: (state, matches) => {
 			state.followers = matches.followers
 			state.following = matches.following
+		},
+		syncBlocked: (state, blacklist) => {
+			console.log('i am the blacklist --> ', blacklist)
+			state.blocked = blacklist.blocked
+			state.blockedBy = blacklist.blockedBy
 		}
 	},
 	actions: {
@@ -57,6 +66,7 @@ export const store = new Vuex.Store({
 		login:(context, user) => {
 			context.dispatch('locate', user.id)
 			context.dispatch('syncMatches', user.id)
+			context.dispatch('syncBlocked', user.id)
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
 		},
@@ -89,6 +99,12 @@ export const store = new Vuex.Store({
 			utility.getMatches(res => context.commit('syncMatches', {
 				following: res.body.filter(cur => cur.matcher == id).map(cur => cur.matched),
 				followers: res.body.filter(cur => cur.matched == id).map(cur => cur.matcher)
+			}), id)
+		},
+		syncBlocked: (context, id) => {
+			utility.getBlocked(res => context.commit('syncBlocked', {
+				blocked: res.body.filter(cur => cur.blocker == id).map(cur => cur.blocked),
+				blockedBy: res.body.filter(cur => cur.blocked == id).map(cur => cur.blocker)
 			}), id)
 		}
 	}

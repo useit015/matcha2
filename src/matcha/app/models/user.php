@@ -56,6 +56,7 @@ class User {
 							`address` = :address,
 							city = :city,
 							country = :country,
+							rating = :rating,
 							postal_code = :postal_code,
 							phone = :phone
 						WHERE id = :id');
@@ -154,6 +155,20 @@ class User {
 	public function getMatches($id) {
 		$this->db->query('SELECT * FROM matches where matcher = ? OR matched = ?');
 		return $this->db->resultSet([$id, $id]);
+	}
+
+	public function getBlocked($id) {
+		$this->db->query('SELECT * FROM blocked where blocker = ? OR blocked = ?');
+		return $this->db->resultSet([$id, $id]);
+	}
+
+	public function block($blocker, $blocked) {
+		$this->db->query('SELECT * FROM blocked where blocker = ? AND blocked = ?');
+		if (!$this->db->resultSet([$blocker, $blocked])) {
+			$this->db->query('INSERT INTO blocked (blocker, blocked) VALUES (?, ?)');
+			return $this->db->execute([$blocker, $blocked]);
+		}
+		return [];
 	}
 
 }

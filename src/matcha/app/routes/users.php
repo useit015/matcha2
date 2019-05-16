@@ -100,6 +100,7 @@ $app->post('/api/user/install', function(Request $req, Response $res) {
 			'address' => $req->getParam('address'),
 			'city' => $req->getParam('city'),
 			'country' => $req->getParam('country'),
+			'rating' => $req->getParam('rating'),
 			'postal_code' => $req->getParam('postal_code'),
 			'phone' => $req->getParam('phone')
 		];
@@ -194,6 +195,7 @@ $app->post('/api/user/update/{id}', function(Request $req, Response $res) {
 		'address' => $req->getParam('address'),
 		'city' => $req->getParam('city'),
 		'country' => $req->getParam('country'),
+		'rating' => $req->getParam('rating'),
 		'postal_code' => $req->getParam('postal_code'),
 		'phone' => $req->getParam('phone')
 	];
@@ -282,4 +284,22 @@ $app->post('/api/user/match/{id}', function(Request $req, Response $res) {
 		}
 	}
 	return $res->withJson($state);
+});
+
+$app->post('/api/user/block/{id}', function(Request $req, Response $res) {
+	$userModel = new User();
+	$blocked = $req->getAttribute('id');
+	$blocker = $req->getParam('blocker');
+	$state = [ 'ok' => true ];
+	if (!$userModel->block($blocker, $blocked)) {
+		$state['ok'] = false;
+		$state['err'] = 'Cant match';
+	}
+	return $res->withJson($state);
+});
+
+$app->post('/api/user/getblocked', function(Request $req, Response $res) {
+	$userModel = new User();
+	$id = $req->getParam('id');
+	return $res->withJson($userModel->getBlocked($id));
 });
