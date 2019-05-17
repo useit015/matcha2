@@ -19,7 +19,7 @@
 		</v-toolbar>
 		<v-navigation-drawer v-model="drawer" app fixed class="primary">
 			<v-list>
-				<v-list-tile avatar >
+				<v-list-tile avatar>
 					<v-layout align-center justify-center v-if="isLoggedIn">
 						<v-list-tile-avatar>
 							<img :src="profileImage">

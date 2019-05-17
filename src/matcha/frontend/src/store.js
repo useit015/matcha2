@@ -13,11 +13,28 @@ export const store = new Vuex.Store({
 		following: [],
 		followers: [],
 		blocked: [],
-		blockedBy: []
+		blockedBy: [],
+		history: []
 	},
 	getters: {
 		user: state => state.user,
 		status: state => state.status,
+		history: state => {
+			return [
+				...state.history.map(cur => ({
+					...cur,
+					type: 'visit'
+				})),
+				...state.followers.map(cur => ({
+					...cur,
+					type: 'follower'
+				})),
+				...state.following.map(cur => ({
+					...cur,
+					type: 'following'
+				}))
+			]
+		},
 		blocked: state => state.blocked,
 		location: state => state.location,
 		following: state => state.following,
@@ -48,12 +65,14 @@ export const store = new Vuex.Store({
 		locate: (state, location) => {
 			state.location = location
 		},
+		syncHistory: (state, history) => {
+			state.history = history
+		},
 		syncMatches: (state, matches) => {
 			state.followers = matches.followers
 			state.following = matches.following
 		},
 		syncBlocked: (state, blacklist) => {
-			console.log('i am the blacklist --> ', blacklist)
 			state.blocked = blacklist.blocked
 			state.blockedBy = blacklist.blockedBy
 		}
@@ -67,6 +86,7 @@ export const store = new Vuex.Store({
 			context.dispatch('locate', user.id)
 			context.dispatch('syncMatches', user.id)
 			context.dispatch('syncBlocked', user.id)
+			context.dispatch('syncHistory', user.id)
 			localStorage.setItem('token', user.token)
 			context.commit('login', user)
 		},
@@ -97,8 +117,8 @@ export const store = new Vuex.Store({
 		},
 		syncMatches: (context, id) => {
 			utility.getMatches(res => context.commit('syncMatches', {
-				following: res.body.filter(cur => cur.matcher == id).map(cur => cur.matched),
-				followers: res.body.filter(cur => cur.matched == id).map(cur => cur.matcher)
+				following: res.body.filter(cur => cur.matcher_id == id),
+				followers: res.body.filter(cur => cur.matched_id == id)
 			}), id)
 		},
 		syncBlocked: (context, id) => {
@@ -106,6 +126,9 @@ export const store = new Vuex.Store({
 				blocked: res.body.filter(cur => cur.blocker == id).map(cur => cur.blocked),
 				blockedBy: res.body.filter(cur => cur.blocked == id).map(cur => cur.blocker)
 			}), id)
+		},
+		syncHistory: (context, id) => {
+			utility.syncHistory(res => context.commit('syncHistory', res.body), id)
 		}
 	}
 })

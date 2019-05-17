@@ -34,6 +34,22 @@
 					<v-tab-item value="tab-photo">
 						<profile-gallery :images="user.images"></profile-gallery>
 					</v-tab-item>
+					<v-tab-item value="tab-history">
+						<v-container>
+							<h1 class="heading display-2 text-xs-center text-md-left font-weight-thin pt-4 pb-3 mb-4 hidden-sm-and-down">History</h1>
+							<v-timeline align-top dense>
+								<v-timeline-item color="primary" small v-for="(entry, i) in history" :key="i">
+									<v-layout pt-3>
+										<v-flex>
+											<span>{{ getHistoryAction(entry.type) }}</span>
+											<router-link :to="`/user/${entry.id}`" class="pl-2 timeline_link d-inline-block" :style="`width:${getMaxWidth}ch`">{{ entry.username }}</router-link>
+											<strong>{{ fromNow(entry.visit_date) }}</strong>
+										</v-flex>
+									</v-layout>
+								</v-timeline-item>
+							</v-timeline>
+						</v-container>
+					</v-tab-item>
 					<v-tab-item value="tab-setting">
 						<profile-settings></profile-settings>
 					</v-tab-item>
@@ -48,6 +64,7 @@
 
 <script>
 import Alert from './Alert'
+import moment from 'moment'
 import utility from '../utility.js'
 import ProfileForm from './ProfileForm'
 import ProfileTabs from './ProfileTabs'
@@ -81,7 +98,11 @@ export default {
 			set: function (user) {},
 		},
 		profileImage () {
-			return utility.getFullPath(this.$store.getters.profileImage)
+			return this.getFullPath(this.$store.getters.profileImage)
+		},
+		history () {
+			this.$store.dispatch('syncHistory', this.$store.getters.user.id)
+			return this.$store.getters.history
 		}
 	},
 	watch: {
@@ -92,7 +113,7 @@ export default {
 	},
 	methods: {
 		...utility,
-		updateUser() {
+		updateUser () {
 			this.$http.post(`http://localhost:80/matcha/public/api/user/update/${this.user.id}`, { ...this.user })
 				.then(res => {
 					if (res && res.body && res.body.ok) {
@@ -104,7 +125,7 @@ export default {
 					}
 				}).catch(err => console.error(err))
 		},
-		updateImage(data) {
+		updateImage (data) {
 			const fd = new FormData()
 			fd.append('image', data)
 			fd.append('profile', 1)
@@ -119,26 +140,51 @@ export default {
 					}
 				}).catch(err => console.error(err))
 		},
-		showAlert(color, text) {
+		showAlert (color, text) {
 			this.alert = {
 				state: true,
 				color,
 				text
 			}
 		},
-		syncUser(user) {
+		syncUser (user) {
 			this.user = user
 		},
-		changeTab(tab) {
+		changeTab (tab) {
 			this.activeTab = tab
 		},
-		openEditor() {
+		openEditor () {
 			this.$refs.profile_editor.pickFile()
 		},
-		checkIfLoggedIn(){
+		checkIfLoggedIn () {
 			if (!this.user.token || this.user.token != localStorage.getItem('token'))
 				this.$router.push('/');
+		},
+		fromNow (date) {
+			return moment.utc(date).fromNow()
+		},
+		getMaxWidth () {
+			Math.max(...history.map(cur => {
+				if (cur.username) return cur.username.length
+			}))
+		},
+		getHistoryAction (type) {
+			switch (type) {
+				case 'visit':
+					return 'You visited'
+				case 'follower':
+					return 'This dude liked you'
+				case 'following':
+					return 'You liked'
+			}
 		}
 	}
 }
 </script>
+
+<style>
+.timeline_link {
+	text-decoration: none;
+}
+</style>
+

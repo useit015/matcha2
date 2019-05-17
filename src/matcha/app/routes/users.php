@@ -64,10 +64,11 @@ $app->get('/api/users', function(Request $req, Response $res) {
 	return $res->withJson($userModel->getAllUsers());
 });
 
-$app->get('/api/user/{id}', function(Request $req, Response $res) {
+$app->post('/api/user/show/{id}', function(Request $req, Response $res) {
 	$userModel = new User();
 	$user = $userModel->getUser($req->getAttribute('id'));
 	$user[0]->images = $userModel->getUserImages($user[0]->id);
+	$userModel->history($req->getParam('visitor'), $user[0]->id);
 	return $res->withJson($user);
 });
 
@@ -263,6 +264,18 @@ $app->post('/api/user/getmatches', function(Request $req, Response $res) {
 	return $res->withJson($userModel->getMatches($id));
 });
 
+$app->post('/api/user/getblocked', function(Request $req, Response $res) {
+	$userModel = new User();
+	$id = $req->getParam('id');
+	return $res->withJson($userModel->getBlocked($id));
+});
+
+$app->post('/api/user/gethistory', function(Request $req, Response $res) {
+	$userModel = new User();
+	$id = $req->getParam('id');
+	return $res->withJson($userModel->getHistory($id));
+});
+
 $app->post('/api/user/match/{id}', function(Request $req, Response $res) {
 	$userModel = new User();
 	$matched = $req->getAttribute('id');
@@ -296,10 +309,4 @@ $app->post('/api/user/block/{id}', function(Request $req, Response $res) {
 		$state['err'] = 'Cant match';
 	}
 	return $res->withJson($state);
-});
-
-$app->post('/api/user/getblocked', function(Request $req, Response $res) {
-	$userModel = new User();
-	$id = $req->getParam('id');
-	return $res->withJson($userModel->getBlocked($id));
 });

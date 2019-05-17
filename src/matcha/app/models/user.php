@@ -153,13 +153,43 @@ class User {
 	}
 
 	public function getMatches($id) {
-		$this->db->query('SELECT * FROM matches where matcher = ? OR matched = ?');
-		return $this->db->resultSet([$id, $id]);
+		$this->db->query('SELECT
+							matches.matched as matched_id,
+							matches.created_at as match_date,
+							users.username as username
+						FROM matches
+						INNER JOIN users
+						ON matches.matched = users.id
+						where matches.matcher = ?');
+		$following = $this->db->resultSet([$id]);
+		$this->db->query('SELECT
+							matches.matcher as matcher_id,
+							matches.created_at as match_date,
+							users.username as username
+						FROM matches
+						INNER JOIN users
+						ON matches.matcher = users.id
+						where matches.matched = ?');
+		$followers = $this->db->resultSet([$id]);
+		return array_merge($following, $followers);
 	}
 
 	public function getBlocked($id) {
 		$this->db->query('SELECT * FROM blocked where blocker = ? OR blocked = ?');
 		return $this->db->resultSet([$id, $id]);
+	}
+
+	public function getHistory($id) {
+		$this->db->query('SELECT
+							history.visited as id,
+							history.created_at as visit_date,
+							users.username as username
+						FROM history
+						INNER JOIN users 
+						ON history.visited = users.id
+						WHERE history.visitor = ?
+						ORDER BY history.created_at DESC');
+		return $this->db->resultSet([$id]);
 	}
 
 	public function block($blocker, $blocked) {
@@ -169,6 +199,11 @@ class User {
 			return $this->db->execute([$blocker, $blocked]);
 		}
 		return [];
+	}
+
+	public function history($visitor, $visited) {
+		$this->db->query('INSERT INTO history (visitor, visited) VALUES (?, ?)');
+		return $this->db->execute([$visitor, $visited]);
 	}
 
 }
