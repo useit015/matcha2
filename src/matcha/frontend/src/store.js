@@ -40,7 +40,12 @@ export const store = new Vuex.Store({
 		following: state => state.following,
 		followers: state => state.followers,
 		blockedBy: state => state.blockedBy,
-		matches: state => state.following.filter(cur => state.followers.indexOf(cur) != -1),
+		matches: state => state.following.filter(cur => {
+			for (const follower of state.followers)
+				if (follower.id == cur.id)
+					return true
+			return false
+		}),
 		profileImage: state => {
 			if (!state.user.images) return 'default.jpg'
 			const image = state.user.images.filter(cur => cur.profile == true)[0]
@@ -116,10 +121,22 @@ export const store = new Vuex.Store({
 			}
 		},
 		syncMatches: (context, id) => {
-			utility.getMatches(res => context.commit('syncMatches', {
-				following: res.body.filter(cur => cur.matcher_id == id),
-				followers: res.body.filter(cur => cur.matched_id == id)
-			}), id)
+			utility.getMatches(res => {
+				context.commit('syncMatches', {
+					following: res.body.filter(cur => cur.matched_id)
+										.map(cur => ({
+											id: cur.matched_id,
+											match_date: cur.match_date,
+											username: cur.username
+										})),
+					followers: res.body.filter(cur => cur.matcher_id)
+										.map(cur => ({
+											id: cur.matcher_id,
+											match_date: cur.match_date,
+											username: cur.username
+										}))
+				})
+			}, id)
 		},
 		syncBlocked: (context, id) => {
 			utility.getBlocked(res => context.commit('syncBlocked', {

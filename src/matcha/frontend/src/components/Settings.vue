@@ -40,14 +40,20 @@
 							<v-timeline align-top dense>
 								<v-timeline-item color="primary" small v-for="(entry, i) in history" :key="i">
 									<v-layout pt-3>
+										<v-flex xs3>
+											<strong>{{ fromNow(getDate(entry)) }}</strong>
+										</v-flex>
 										<v-flex>
-											<span>{{ getHistoryAction(entry.type) }}</span>
-											<router-link :to="`/user/${entry.id}`" class="pl-2 timeline_link d-inline-block" :style="`width:${getMaxWidth}ch`">{{ entry.username }}</router-link>
-											<strong>{{ fromNow(entry.visit_date) }}</strong>
+											<span v-if="entry.type !== 'follower'">{{ getHistoryAction(entry.type) }}</span>
+											<router-link :to="`/user/${entry.id}`" class="timeline_link d-inline-block" :style="`width:${getMaxWidth}ch`">{{ entry.username }}</router-link>
+											<span v-if="entry.type === 'follower'">{{ getHistoryAction(entry.type) }}</span>
 										</v-flex>
 									</v-layout>
 								</v-timeline-item>
 							</v-timeline>
+							<v-flex xs6 offset-xs3>
+								<v-btn large color="primary" flat round class="my-4" @click="limit += 5">Load More</v-btn>
+							</v-flex>
 						</v-container>
 					</v-tab-item>
 					<v-tab-item value="tab-setting">
@@ -85,6 +91,7 @@ export default {
 		ProfileSettings
 	},
 	data: () => ({
+		limit: 15,
 		activeTab: 'tab-profile',
 		alert: {
 			state: false,
@@ -92,6 +99,10 @@ export default {
 			text: ''
 		}
 	}),
+	created () {
+		this.$store.dispatch('syncHistory', this.$store.getters.user.id)
+		this.$store.dispatch('syncMatches', this.$store.getters.user.id)
+	},
 	computed: {
 		user: {
 			get: function () { return { ...this.$store.getters.user } },
@@ -101,8 +112,9 @@ export default {
 			return this.getFullPath(this.$store.getters.profileImage)
 		},
 		history () {
-			this.$store.dispatch('syncHistory', this.$store.getters.user.id)
 			return this.$store.getters.history
+					.sort((a, b) => new Date(this.getDate(b)) - new Date(this.getDate(a)))
+					.slice(0, this.limit)
 		}
 	},
 	watch: {
@@ -173,9 +185,19 @@ export default {
 				case 'visit':
 					return 'You visited'
 				case 'follower':
-					return 'This dude liked you'
+					return 'Liked you'
 				case 'following':
 					return 'You liked'
+			}
+		},
+		getDate (item) {
+			switch (item.type) {
+				case 'visit':
+					return item.visit_date
+				case 'follower':
+					return item.match_date
+				case 'following':
+					return item.match_date
 			}
 		}
 	}

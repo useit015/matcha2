@@ -99,7 +99,6 @@ export default {
 	created () {
 		this.$http.get('http://localhost:80/matcha/public/api/users')
 			.then(res => {
-				console.log('i am res --> ', res)
 				this.users = res.body.map(cur => ({
 									...cur,
 									rating: Number(cur.rating),

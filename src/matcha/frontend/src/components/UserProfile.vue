@@ -33,7 +33,7 @@
 						</template>
 						<v-tooltip left>
 							<template v-slot:activator="{ on }">
-								<v-btn fab dark small color="primary darken-2" @click="action('reported')" v-on="on">
+								<v-btn fab dark small color="primary darken-2" @click="reportDialog = true" v-on="on">
 									<v-icon>warning</v-icon>
 								</v-btn>
 							</template>
@@ -41,7 +41,7 @@
 						</v-tooltip>
 						<v-tooltip left>
 							<template v-slot:activator="{ on }">
-								<v-btn fab dark small color="primary darken-2" @click="block" v-on="on">
+								<v-btn fab dark small color="primary darken-2" @click="blockDialog = true" v-on="on">
 									<v-icon>delete_forever</v-icon>
 								</v-btn>
 							</template>
@@ -85,6 +85,44 @@
 			</v-layout>
 		</v-container>
 	</v-layout>
+	<v-dialog v-model="reportDialog" max-width="600px">
+		<v-card class="pa-2">
+			<v-card-title>
+				<span class="headline">Report as fake</span>
+			</v-card-title>
+			<v-card-text>
+				<v-container>
+					<p class="subheading d-inline">Are you sure you want to report</p>
+					<router-link :to="`/user/${user.id}`" class="px-1 user_link">{{ user.username }}</router-link>
+					<p class="subheading d-inline">as fake ?</p>
+				</v-container>
+			</v-card-text>
+			<v-card-actions>
+				<v-spacer></v-spacer>
+				<v-btn color="primary" flat @click="reportDialog = false">Close</v-btn>
+				<v-btn color="primary" flat @click="reportDialog = false">Report</v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-dialog>
+	<v-dialog v-model="blockDialog" max-width="600px">
+		<v-card class="pa-2">
+			<v-card-title>
+				<span class="headline">To the blacklist</span>
+			</v-card-title>
+			<v-card-text>
+				<v-container>
+					<p class="subheading d-inline">Are you sure you want to block</p>
+					<router-link :to="`/user/${user.id}`" class="px-1 user_link">{{ user.username }}</router-link>
+					<p class="subheading d-inline">?</p>
+				</v-container>
+			</v-card-text>
+			<v-card-actions>
+				<v-spacer></v-spacer>
+				<v-btn color="primary" flat @click="blockDialog = false">Close</v-btn>
+				<v-btn color="primary" flat @click="block">Block</v-btn>
+			</v-card-actions>
+		</v-card>
+	</v-dialog>
 </div>
 </template>
 
@@ -110,10 +148,12 @@ export default {
 	},
 	data () {
 		return {
-			activeTab: 'tab-profile',
 			user: {},
-			fab: false,
 			f: true,
+			fab: false,
+			blockDialog: false,
+			reportDialog: false,
+			activeTab: 'tab-profile',
 			items: [
 				{ title: 'Block', handler: e => console.log('nigga1 -->', e) },
 				{ title: 'Report', handler: e => console.log('nigga2 -->', e) }
@@ -151,7 +191,7 @@ export default {
 		liked: {
 			get () {
 				for (let match of this.$store.getters.following)
-					if (match == this.user.id)
+					if (match.id == this.user.id)
 						return true 
 				return false
 			},
@@ -171,7 +211,10 @@ export default {
 			return imgs ? !imgs.length : true
 		},
 		userCanChat () {
-			return this.$store.getters.matches.includes(this.user.id)
+			for (const match of this.$store.getters.matches)
+				if (match.id == this.user.id)
+					return true
+			return false
 		},
 		age () {
 			return new Date().getFullYear() - new Date(this.user.birthdate).getFullYear()
@@ -234,9 +277,7 @@ export default {
 				this.$store.dispatch('syncBlocked', this.$store.getters.user.id)
 				this.$router.go(-1)
 			}).catch(err => console.error(err))
-		},
-		action (s) {
-			console.log(s, ' --> ', this.user.id)
+			this.blockDialog = false
 		}
 	}
 }
@@ -267,5 +308,10 @@ export default {
 .speed_list > .v-speed-dial__list {
 	top: 4.25rem;
 	z-index: 5;
+}
+
+.user_link {
+	text-decoration: none;
+	font-size: 1.1em;
 }
 </style>
