@@ -61,25 +61,23 @@ import utility from '../utility.js'
 
 export default {
 	name: 'Navbar',
-	data () {
-		return {
-			drawer: false,
-			links: [
-				{ icon: 'dashboard', text: 'Home', route: '/', public: true },
-				{ icon: 'people', text: 'Discover', route: '/discover', public: false },
-				{ icon: 'chat', text: 'Chat', route: '/chat', public: false },
-				{ icon: 'notification_important', text: 'Notifications', route: '/notifications', public: false },
-				{ icon: 'settings', text: 'Settings', route: '/settings', public: false },
-			]
-		}
-	},
-	created: function () {
+	data: () => ({
+		drawer: false,
+		links: [
+			{ icon: 'dashboard', text: 'Home', route: '/', public: true },
+			{ icon: 'people', text: 'Discover', route: '/discover', public: false },
+			{ icon: 'chat', text: 'Chat', route: '/chat', public: false },
+			{ icon: 'notification_important', text: 'Notifications', route: '/notifications', public: false },
+			{ icon: 'settings', text: 'Settings', route: '/settings', public: false },
+		]
+	}),
+	created () {
 		this.$http.post('http://localhost:80/matcha/public/api/user/isloggedin', {
 				token: localStorage.getItem("token")
 			}).then(res => {
 				if (res.body.tokenExpiration && Date.parse(res.body.tokenExpiration) >= Date.now()) {
 					this.$store.dispatch('login', res.body)
-					utility.updateLocation(res.body.id)
+					this.updateLocation(res.body.id)
 				}
 			}).catch(err => console.error(err))
 	},
@@ -91,10 +89,11 @@ export default {
 			return this.$store.getters.user;
 		},
 		profileImage () {
-			return utility.getFullPath(this.$store.getters.profileImage)
+			return this.getFullPath(this.$store.getters.profileImage)
 		}
 	},
 	methods: {
+		...utility,
 		logout () {
 			this.$http.post('http://localhost:80/matcha/public/api/user/logout')
 				.then(res => res.body.ok ? this.$store.dispatch('logout') : 1)

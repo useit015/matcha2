@@ -35,26 +35,7 @@
 						<profile-gallery :images="user.images"></profile-gallery>
 					</v-tab-item>
 					<v-tab-item value="tab-history">
-						<v-container>
-							<h1 class="heading display-2 text-xs-center text-md-left font-weight-thin pt-4 pb-3 mb-4 hidden-sm-and-down">History</h1>
-							<v-timeline align-top dense>
-								<v-timeline-item color="primary" small v-for="(entry, i) in history" :key="i">
-									<v-layout pt-3>
-										<v-flex xs3>
-											<strong>{{ fromNow(getDate(entry)) }}</strong>
-										</v-flex>
-										<v-flex>
-											<span v-if="entry.type !== 'follower'">{{ getHistoryAction(entry.type) }}</span>
-											<router-link :to="`/user/${entry.id}`" class="timeline_link d-inline-block" :style="`width:${getMaxWidth}ch`">{{ entry.username }}</router-link>
-											<span v-if="entry.type === 'follower'">{{ getHistoryAction(entry.type) }}</span>
-										</v-flex>
-									</v-layout>
-								</v-timeline-item>
-							</v-timeline>
-							<v-flex xs6 offset-xs3>
-								<v-btn large color="primary" flat round class="my-4" @click="limit += 5">Load More</v-btn>
-							</v-flex>
-						</v-container>
+						<profile-history></profile-history>
 					</v-tab-item>
 					<v-tab-item value="tab-setting">
 						<profile-settings></profile-settings>
@@ -75,6 +56,7 @@ import utility from '../utility.js'
 import ProfileForm from './ProfileForm'
 import ProfileTabs from './ProfileTabs'
 import ProfileBadge from './ProfileBadge'
+import ProfileHistory from './ProfileHistory'
 import ProfileEditor from './ProfileEditor'
 import ProfileGallery from './ProfileGallery'
 import ProfileSettings from './ProfileSettings'
@@ -86,12 +68,12 @@ export default {
 		ProfileTabs,
 		ProfileForm,
 		ProfileBadge,
+		ProfileHistory,
 		ProfileEditor,
 		ProfileGallery,
 		ProfileSettings
 	},
 	data: () => ({
-		limit: 15,
 		activeTab: 'tab-profile',
 		alert: {
 			state: false,
@@ -105,22 +87,25 @@ export default {
 	},
 	computed: {
 		user: {
-			get: function () { return { ...this.$store.getters.user } },
-			set: function (user) {},
+			get () {
+				return { ...this.$store.getters.user }
+			},
+			set (user) {
+				
+			},
 		},
 		profileImage () {
 			return this.getFullPath(this.$store.getters.profileImage)
-		},
-		history () {
-			return this.$store.getters.history
-					.sort((a, b) => new Date(this.getDate(b)) - new Date(this.getDate(a)))
-					.slice(0, this.limit)
 		}
 	},
 	watch: {
 		user: {
-			handler: 'checkIfLoggedIn',
-			immediate: true
+			immediate: true,
+			handler () {
+				if (!this.user.token || this.user.token != localStorage.getItem('token')) {
+					this.$router.push('/')
+				}
+			}
 		}
 	},
 	methods: {
@@ -167,46 +152,7 @@ export default {
 		},
 		openEditor () {
 			this.$refs.profile_editor.pickFile()
-		},
-		checkIfLoggedIn () {
-			if (!this.user.token || this.user.token != localStorage.getItem('token'))
-				this.$router.push('/');
-		},
-		fromNow (date) {
-			return moment.utc(date).fromNow()
-		},
-		getMaxWidth () {
-			Math.max(...history.map(cur => {
-				if (cur.username) return cur.username.length
-			}))
-		},
-		getHistoryAction (type) {
-			switch (type) {
-				case 'visit':
-					return 'You visited'
-				case 'follower':
-					return 'Liked you'
-				case 'following':
-					return 'You liked'
-			}
-		},
-		getDate (item) {
-			switch (item.type) {
-				case 'visit':
-					return item.visit_date
-				case 'follower':
-					return item.match_date
-				case 'following':
-					return item.match_date
-			}
 		}
 	}
 }
 </script>
-
-<style>
-.timeline_link {
-	text-decoration: none;
-}
-</style>
-

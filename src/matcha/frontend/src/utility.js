@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-const isExternal = url => url.indexOf(':') > -1 || url.indexOf('//') > -1 || url.indexOf('www.') > -1
+const isExternal = url => url && (url.indexOf(':') > -1 || url.indexOf('//') > -1 || url.indexOf('www.') > -1)
 
 const translateLocation = loc => ({
 	lat: Number(loc.latitude),
@@ -74,6 +74,30 @@ export default {
 				lat: Number(res.body.latitude),
 				lng: Number(res.body.longitude)
 			}))
+		}
+	},
+	getHistoryAction (type) {
+		switch (type) {
+			case 'visited':
+				return 'You visited'
+			case 'visitor':
+				return 'Visited your profile'
+			case 'follower':
+				return 'Liked you'
+			case 'following':
+				return 'You liked'
+		}
+	},
+	getDate (item) {
+		switch (item.type) {
+			case 'visitor':
+				return item.visit_date
+			case 'visited':
+				return item.visit_date
+			case 'follower':
+				return item.match_date
+			case 'following':
+				return item.match_date
 		}
 	}
 }

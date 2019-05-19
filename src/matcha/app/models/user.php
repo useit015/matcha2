@@ -156,20 +156,28 @@ class User {
 		$this->db->query('SELECT
 							matches.matched as matched_id,
 							matches.created_at as match_date,
-							users.username as username
+							users.username as username,
+							images.name as profile_image
 						FROM matches
 						INNER JOIN users
 						ON matches.matched = users.id
-						where matches.matcher = ?');
+						INNER JOIN images
+						ON matches.matched = images.user_id
+						where matches.matcher = ?
+						AND images.profile = 1');
 		$following = $this->db->resultSet([$id]);
 		$this->db->query('SELECT
 							matches.matcher as matcher_id,
 							matches.created_at as match_date,
-							users.username as username
+							users.username as username,
+							images.name as profile_image
 						FROM matches
 						INNER JOIN users
 						ON matches.matcher = users.id
-						where matches.matched = ?');
+						INNER JOIN images
+						ON matches.matcher = images.user_id
+						where matches.matched = ?
+						AND images.profile = 1');
 		$followers = $this->db->resultSet([$id]);
 		return array_merge($following, $followers);
 	}
@@ -181,15 +189,32 @@ class User {
 
 	public function getHistory($id) {
 		$this->db->query('SELECT
-							history.visited as id,
+							history.visitor as visitor_id,
 							history.created_at as visit_date,
-							users.username as username
+							users.username as username,
+							images.name as profile_image
+						FROM history
+						INNER JOIN users 
+						ON history.visitor = users.id
+						INNER JOIN images
+						ON history.visitor = images.user_id
+						WHERE history.visited = ?
+						AND images.profile = 1');
+		$visitors = $this->db->resultSet([$id]);
+		$this->db->query('SELECT
+							history.visited as visited_id,
+							history.created_at as visit_date,
+							users.username as username,
+							images.name as profile_image
 						FROM history
 						INNER JOIN users 
 						ON history.visited = users.id
+						INNER JOIN images
+						ON history.visited = images.user_id
 						WHERE history.visitor = ?
-						ORDER BY history.created_at DESC');
-		return $this->db->resultSet([$id]);
+						AND images.profile = 1');
+		$visited = $this->db->resultSet([$id]);
+		return array_merge($visitors, $visited);
 	}
 
 	public function block($blocker, $blocked) {

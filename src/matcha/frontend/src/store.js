@@ -14,16 +14,21 @@ export const store = new Vuex.Store({
 		followers: [],
 		blocked: [],
 		blockedBy: [],
-		history: []
+		visitor: [],
+		visited: []
 	},
 	getters: {
 		user: state => state.user,
 		status: state => state.status,
 		history: state => {
 			return [
-				...state.history.map(cur => ({
+				...state.visitor.map(cur => ({
 					...cur,
-					type: 'visit'
+					type: 'visitor'
+				})),
+				...state.visited.map(cur => ({
+					...cur,
+					type: 'visited'
 				})),
 				...state.followers.map(cur => ({
 					...cur,
@@ -71,7 +76,8 @@ export const store = new Vuex.Store({
 			state.location = location
 		},
 		syncHistory: (state, history) => {
-			state.history = history
+			state.visitor = history.visitor
+			state.visited = history.visited
 		},
 		syncMatches: (state, matches) => {
 			state.followers = matches.followers
@@ -127,13 +133,15 @@ export const store = new Vuex.Store({
 										.map(cur => ({
 											id: cur.matched_id,
 											match_date: cur.match_date,
-											username: cur.username
+											username: cur.username,
+											profile_image: cur.profile_image
 										})),
 					followers: res.body.filter(cur => cur.matcher_id)
 										.map(cur => ({
 											id: cur.matcher_id,
 											match_date: cur.match_date,
-											username: cur.username
+											username: cur.username,
+											profile_image: cur.profile_image
 										}))
 				})
 			}, id)
@@ -145,7 +153,22 @@ export const store = new Vuex.Store({
 			}), id)
 		},
 		syncHistory: (context, id) => {
-			utility.syncHistory(res => context.commit('syncHistory', res.body), id)
+			utility.syncHistory(res => context.commit('syncHistory', {
+				visitor: res.body.filter(cur => cur.visitor_id)
+									.map(cur => ({
+										id: cur.visitor_id,
+										visit_date: cur.visit_date,
+										username: cur.username,
+										profile_image: cur.profile_image
+									})),
+				visited: res.body.filter(cur => cur.visited_id)
+									.map(cur => ({
+										id: cur.visited_id,
+										visit_date: cur.visit_date,
+										username: cur.username,
+										profile_image: cur.profile_image
+									}))
+			}), id)
 		}
 	}
 })

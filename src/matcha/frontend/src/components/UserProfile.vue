@@ -165,9 +165,11 @@ export default {
 			immediate: true,
 			handler () {
 				const id = this.$route.params.id
-				if (Array.isArray(this.blocked) && Array.isArray(this.$store.getters.blockedBy))
-					if (this.blocked.includes(id) || this.$store.getters.blockedBy.includes(id))
-						this.$router.go(-1)
+				if (Array.isArray(this.blocked) && Array.isArray(this.$store.getters.blockedBy)) {
+					if (this.blocked.includes(id) || this.$store.getters.blockedBy.includes(id)) {
+						this.$router.push('/')
+					}
+				}
 			}
 		},
 		loggedIn: {
